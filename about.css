@@ -1,0 +1,90 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* تنسيقات الهيدر */
+header {
+    background-color: #e8d9f7;
+    padding: 10px 20px;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img {
+    width: 30px;
+    height: 30px;
+}
+
+.logo h1 {
+    font-size: 1.5em;
+    color: #4e2c7c;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #4e2c7c;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #9865f7;
+}
+
+.about-section {
+    display: flex;
+    align-items: center;
+    padding: 60px 30px;
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.image-container img {
+    max-width: 60%;
+    height: auto;
+}
+
+.text-container {
+    flex: 1;
+    padding-left: 18px;
+}
+
+h1 {
+    color: #45225D;
+    font-size: 2em;
+    margin-bottom:7px;
+}
+
+p {
+    color: #45225D;
+    font-size: 1.1em;
+    line-height: 1.6;
+}

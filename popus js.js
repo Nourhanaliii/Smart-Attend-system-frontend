@@ -49,7 +49,7 @@
         })
         .then(data => {
             console.log('Login successful:', data);
-            window.location.href = 'dashboard.html';
+            //window.location.href = 'dashboard.html';
         })
         .catch(error => {
             console.error('Error:', error);

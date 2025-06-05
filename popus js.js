@@ -37,7 +37,7 @@
             },
             credentials: 'include',  // Important if your backend uses cookies/session
             body: JSON.stringify({
-                username: userId,
+                email: userId,
                 password: password
             })
         })

@@ -1,0 +1,729 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f9fa;
+}
+
+/* ======= قائمة الهامبرجر ======= */
+.hamburger {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    font-size: 24px;
+    color: #5a67d8;
+}
+
+/* ======= النافذة الجانبية ======= */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    position: fixed;
+    padding: 15px;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    margin-left: -220px;
+}
+
+.sidebar h1 {
+    font-size: 20px;
+    color: #5a67d8;
+    text-align: center;
+    margin: 15px 0 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+    flex-grow: 1;
+}
+
+.sidebar li {
+    padding: 12px 15px;
+    margin: 5px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.3s;
+}
+
+.sidebar li:hover {
+    background: #5a67d8;
+    color: white;
+}
+
+a {
+    display: flex;
+    align-items: center;
+    text-decoration: none; /* إزالة الخط السفلي */
+    color: inherit; /* يجعل اللون مثل النص المحيط */
+}
+a img {
+    margin-right: 10px;
+}
+
+.sidebar-bottom {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
+    margin-top: auto;
+}
+
+.camera-button {
+    background: #5a67d8;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.camera-button:hover {
+    background: #8e24aa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+/* Camera Modal Window */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    width: 95%;
+    max-width: 800px;
+    position: relative;
+    padding: 20px;
+    background: #222;
+    border-radius: 12px;
+  }
+  
+
+/* ======= المحتوى الرئيسي ======= */
+.main-content {
+    margin-left: 220px;
+    padding: 25px;
+    transition: 0.3s;
+}
+
+/* ======= الهيدر العلوي ======= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.search-bar {
+    width: 400px;
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-section img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.container {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    text-align: left;
+    margin-bottom: 20px;
+    color: #000;
+    font-size: 24px;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filters {
+    display: flex;
+    gap: 20px;
+    padding: 25px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.filters:hover {
+    transform: translateY(-3px);
+}
+
+.filters select, .filters input, .filters button {
+    padding: 18px 25px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.filters select {
+    cursor: pointer;
+}
+
+.filters select:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filters button {
+    background-color: #f44336;
+    color: white;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
+}
+
+.add-student button {
+    padding: 18px 25px;
+    font-size: 14px;
+    background-color: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.add-student button:hover {
+    background-color: #5a67d8;
+    transform: scale(1.05);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    padding: 15px;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+}
+
+.table tr:hover td {
+    background-color: #f9f9f9;
+    color: #6a0dad;
+}
+
+.rating {
+    color: gold;
+    font-size: 14px;
+}
+
+.student-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+}
+
+.password-cell {
+    font-family: 'Courier New', monospace;
+    color: #555;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actions .edit {
+    background-color: #5a67d8;
+    color: white;
+}
+
+.actions .delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* استايل قسم صورة الطالب */
+.student-photo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.camera-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px dashed #cbd5e0;
+    margin-bottom: 10px;
+}
+
+.camera-icon:hover {
+    background-color: #e2e8f0;
+    transform: scale(1.05);
+}
+
+.camera-icon i {
+    font-size: 30px;
+    color: #6a1b9a;
+    margin-bottom: 8px;
+}
+
+.camera-icon span {
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.image-preview {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e2e8f0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 50%;
+    min-width: 400px;
+    max-width: 600px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px;
+    border-top: 1px solid #eee;
+}
+
+.modal-content input,
+.modal-content select {
+    display: block;
+    width: 100%;
+    margin: 15px 0;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.styled-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 15px;
+}
+
+/* استايل خيارات الكاميرا */
+.camera-options {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.camera-option-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #e2e8f0;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.camera-option-btn.active {
+    background-color: #5a67d8;
+    color: white;
+}
+
+.camera-option-btn:hover {
+    background-color: #d2d8e0;
+}
+
+.camera-option-btn.active:hover {
+    background-color: #4c51bf;
+}
+
+/* استايل رفع الصورة */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    min-height: 200px;
+}
+
+.upload-label:hover {
+    border-color: #a0aec0;
+    background-color: #f8f9fa;
+}
+
+.upload-label i {
+    font-size: 40px;
+    color: #6a1b9a;
+    margin-bottom: 10px;
+}
+
+.upload-label span {
+    color: #4a5568;
+    font-size: 16px;
+}
+
+#uploadPreview {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+/* Camera Modal Window */
+.video-container {
+    width: 100%;
+    height: 50vh;
+    max-height: 500px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#cameraView {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-controls {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0 10px;
+}
+
+/* Capture Button */
+.capture-btn {
+    background: #6a1b9a;
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.capture-btn:hover {
+    background: #8e24aa;
+    transform: scale(1.05);
+}
+
+.capture-btn:active {
+    transform: scale(0.98);
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: white;
+    font-size: 42px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+    padding: 5px;
+    transition: color 0.2s;
+    z-index: 1001;
+}
+
+.close-btn:hover {
+    color: #f44336;
+}
+
+/* Flash animation */
+@keyframes fadeOut {
+    0% { opacity: 0.8; }
+    100% { opacity: 0; display: none; }
+}
+
+/* لل صوره تنسيق زر الرفع */
+.form-group label {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #a661b8;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.form-group label:hover {
+    background-color: #45a049;
+}
+
+
+/* تنسيق جديد لأزرار Save و Cancel */
+.modal-footer .save {
+    background-color: #844aa4; /* لون أخضر */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.modal-footer .cancel {
+    background-color: #c5c2c2c1; /* لون رمادي */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.modal-footer .save:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.modal-footer .cancel:hover {
+    background-color: #757575;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* تحسينات لنافذة Edit Modal */
+.edit-photo-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    cursor: pointer;
+}
+
+.edit-photo-container .image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e2e8f0;
+}
+
+.edit-photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.edit-photo-overlay span {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    padding: 5px;
+}
+
+.edit-photo-container:hover .edit-photo-overlay {
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .sidebar {
+        margin-left: -220px;
+    }
+    
+    .sidebar.active {
+        margin-left: 0;
+    }
+    
+    .hamburger {
+        display: block;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .filters {
+        flex-wrap: wrap;
+    }
+    
+    .modal-content {
+        width: 90%;
+        min-width: unset;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filters, .add-student {
+        width: 100%;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+}

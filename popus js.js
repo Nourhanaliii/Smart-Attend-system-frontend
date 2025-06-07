@@ -1,74 +1,112 @@
- const loginButton = document.getElementById('loginButton');
-    const loginPopup = document.getElementById('loginPopup');
-    const overlay = document.getElementById('overlay');
+// popus js.js (الاسم الذي استخدمته في الـ HTML)
 
-    loginButton.addEventListener('click', () => {
-        loginPopup.style.display = 'block';
-        overlay.style.display = 'block';
-    });
-
-    overlay.addEventListener('click', () => {
-        loginPopup.style.display = 'none';
-        overlay.style.display = 'none';
-    });
-
-    document.getElementById('submitLogin').addEventListener('click', () => {
-    const userId = document.getElementById('userId').value;
-    const password = document.getElementById('password').value;
-    //console.log('User ID:', userId, 'Password:', password);
-    //alert('Login submitted');
-    if (userId && password) {
-        // عرض رسالة تحميل
-        const loginButton = document.getElementById('submitLogin');
-        loginButton.innerText = 'Logging in...';
-        loginButton.disabled = true;
-
-        // إضافة تأثير احترافي عند التوجيه
-        //document.body.style.opacity = '0.5';
-        //document.body.style.transition = 'opacity 1s ease-in-out';
-
-        // محاكاة عملية تسجيل الدخول (تأخير 1.5 ثانية)
-        fetch('https://django.nextapps.me/api/members/login/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                //'X-CSRFToken': getCookie('csrftoken')  // optional, if CSRF is enabled
-            },
-            credentials: 'include',  // Important if your backend uses cookies/session
-            body: JSON.stringify({
-                email: userId,
-                password: password
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Login failed');
+// ===================================================================
+//  1. دالة مساعدة قياسية لقراءة قيمة الكوكي من المتصفح
+//  هذه الدالة ستحتاجها كثيراً في كل الصفحات بعد تسجيل الدخول
+// ===================================================================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // هل هذا الكوكي هو الذي نبحث عنه؟
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Login successful:', data);
-            window.location.href = 'dashboard.html';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Login failed. Please check your credentials.');
-            loginButton.innerText = 'Login';
-            loginButton.disabled = false;
-            document.body.style.opacity = '1';
-        });
-        // setTimeout(() => {
-        //     // التوجيه إلى صفحة الـ Dashboard
-        //     window.location.href = 'dashboard.html';
-        // }, 1500);
-    } else {
-        // عرض رسالة تحذير عند وجود حقل فارغ
-        alert('Please enter your username and password!');
+        }
     }
+    return cookieValue;
+}
+
+
+// ===================================================================
+//  2. التعامل مع الـ Popup (الكود الخاص بك، وهو جيد)
+// ===================================================================
+const loginButton = document.getElementById('loginButton');
+const loginPopup = document.getElementById('loginPopup');
+const overlay = document.getElementById('overlay');
+const closePopup = document.getElementById('closePopup');
+
+loginButton.addEventListener('click', () => {
+    loginPopup.style.display = 'block';
+    overlay.style.display = 'block';
 });
 
-    const closePopup = document.getElementById('closePopup');
-    closePopup.addEventListener('click', () => {
-        loginPopup.style.display = 'none';
-        overlay.style.display = 'none';
+const closeLoginPopup = () => {
+    loginPopup.style.display = 'none';
+    overlay.style.display = 'none';
+};
+
+overlay.addEventListener('click', closeLoginPopup);
+closePopup.addEventListener('click', closeLoginPopup);
+
+
+// ===================================================================
+//  3. منطق تسجيل الدخول (النسخة الصحيحة والمعدلة)
+// ===================================================================
+document.getElementById('submitLogin').addEventListener('click', () => {
+    const emailInput = document.getElementById('userId').value;
+    const passwordInput = document.getElementById('password').value;
+    const submitBtn = document.getElementById('submitLogin');
+
+    if (!emailInput || !passwordInput) {
+        alert('Please enter your email and password!');
+        return; // أوقف التنفيذ إذا كانت الحقول فارغة
+    }
+
+    // عرض حالة التحميل
+    submitBtn.innerText = 'Logging in...';
+    submitBtn.disabled = true;
+
+    // ----- الجزء الأهم: تعديل الـ fetch -----
+    fetch('https://django.nextapps.me/api/auth/login/', { // ⚠️ استخدمت مسار /api/auth/ لأنه أنظف
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // ❌ لا نرسل X-CSRFToken هنا. لقد تم حذفه.
+        },
+        // ✅ هذا السطر ضروري جداً ليتم حفظ الكوكيز
+        credentials: 'include',
+        body: JSON.stringify({
+            email: emailInput,
+            password: passwordInput
+        })
+    })
+    .then(response => {
+        // تحقق أولاً مما إذا كان الرد ناجحاً من ناحية الشبكة
+        if (!response.ok) {
+            // إذا فشل (مثل 401 Unauthorized)، ارمي خطأ ليتم التقاطه في .catch
+            // يمكنك قراءة رسالة الخطأ من الباكاند إذا أردت
+            return response.json().then(err => { throw new Error(err.error || 'Login failed') });
+        }
+        // إذا نجح، قم بتحويل الرد إلى JSON
+        return response.json();
+    })
+    .then(data => {
+        // بعد نجاح الـ fetch والحصول على بيانات JSON
+        console.log('Login successful:', data);
+        
+        // (اختياري) يمكنك تخزين بيانات المستخدم في localStorage للوصول إليها بسهولة في الصفحات الأخرى
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        // إضافة تأثير احترافي عند التوجيه
+        document.body.style.transition = 'opacity 0.5s ease-in-out';
+        document.body.style.opacity = '0';
+        
+        // التوجيه إلى صفحة الـ Dashboard بعد تأخير بسيط للتأثير
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 500);
+    })
+    .catch(error => {
+        // يتم تنفيذ هذا الجزء في حالة فشل الشبكة أو فشل المصادقة
+        console.error('Error:', error);
+        alert(error.message); // عرض رسالة الخطأ للمستخدم
+
+        // إعادة الزر إلى حالته الطبيعية
+        submitBtn.innerText = 'Login';
+        submitBtn.disabled = false;
     });
+});

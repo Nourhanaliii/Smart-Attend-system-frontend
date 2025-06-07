@@ -61,7 +61,7 @@ document.getElementById('submitLogin').addEventListener('click', () => {
     submitBtn.disabled = true;
 
     // ----- الجزء الأهم: تعديل الـ fetch -----
-    fetch('https://django.nextapps.me/api/auth/login/', { // ⚠️ استخدمت مسار /api/auth/ لأنه أنظف
+    fetch('https://django.nextapps.me/api/members/login/', { // ⚠️ استخدمت مسار /api/auth/ لأنه أنظف
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

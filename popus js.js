@@ -24,8 +24,8 @@
         loginButton.disabled = true;
 
         // إضافة تأثير احترافي عند التوجيه
-        document.body.style.opacity = '0.5';
-        document.body.style.transition = 'opacity 1s ease-in-out';
+        //document.body.style.opacity = '0.5';
+        //document.body.style.transition = 'opacity 1s ease-in-out';
 
         // محاكاة عملية تسجيل الدخول (تأخير 1.5 ثانية)
         fetch('https://django.nextapps.me/api/members/login/', {

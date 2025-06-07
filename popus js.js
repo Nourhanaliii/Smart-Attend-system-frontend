@@ -32,7 +32,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')  // optional, if CSRF is enabled
+                //'X-CSRFToken': getCookie('csrftoken')  // optional, if CSRF is enabled
             },
             credentials: 'include',  // Important if your backend uses cookies/session
             body: JSON.stringify({

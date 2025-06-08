@@ -1,4 +1,4 @@
-// =================== auth.js ===================
+// =================== auth.js (النسخة النهائية) ===================
 
 // --- دوال المصادقة ---
 
@@ -7,11 +7,13 @@
  */
 async function login(email, password) {
     const url = `${API_BASE_URL}/api/members/login/`;
+    // هذه الدالة تستخدم apiRequest الموجودة في ملف api.js
     return apiRequest(url, {
         method: 'POST',
         body: { email, password },
     });
 }
+
 
 // --- منطق ربط الواجهة ---
 // ننتظر حتى يتم تحميل كل محتوى الصفحة
@@ -65,11 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
         submitLoginBtn.disabled = true;
 
         try {
-            // استدعاء دالة login من هذا الملف
-            const data = await login(email, password);
+            // استدعاء دالة login 
+            const data = await login(email, password); // الرد من الباكاند سيحتوي على التوكن
             console.log('Login successful:', data);
 
+            // ✅ ===============================================
+            // ✅ هذا هو التعديل المطلوب: تخزين بيانات المستخدم والتوكن
+            // ✅ ===============================================
             localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('csrfToken', data.csrfToken); // 👈 نخزن التوكن هنا
+            // ===============================================
 
             document.body.style.opacity = '0.5';
             document.body.style.transition = 'opacity 0.5s ease-in-out';

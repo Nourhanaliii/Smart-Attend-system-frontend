@@ -158,14 +158,31 @@ async function loadAndRenderStudents() {
     }
 }
 
+// في ملف student.js
+
 function renderTable(studentsToRender) {
     const tableBody = document.getElementById('studentsTable');
     tableBody.innerHTML = '';
+    
+    if (studentsToRender.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7">No students found.</td></tr>`;
+        return;
+    }
+
     studentsToRender.forEach(student => {
         const row = document.createElement('tr');
         const studentId = student.student_id;
+        
+        // ✅ =======================================================
+        // ✅ هذا هو التعديل: نكوّن رابط الصورة الكامل
+        // ✅ =======================================================
+        const avatarUrl = student.avatar 
+            ? `${API_BASE_URL}${student.avatar}` // ندمج الدومين مع المسار
+            : 'https://via.placeholder.com/50?text=N/A'; // صورة افتراضية إذا لم يوجد
+        // =======================================================
+
         row.innerHTML = `
-            <td><img src="${student.avatar || 'https://via.placeholder.com/50?text=N/A'}" class="student-photo"></td>
+            <td><img src="${avatarUrl}" class="student-photo" alt="Avatar"></td>
             <td>${student.name}</td>
             <td>${studentId}</td>
             <td>******</td>
@@ -180,6 +197,7 @@ function renderTable(studentsToRender) {
     });
 }
 
+// ... باقي دوال الملف تبقى كما هي ...
 // في ملف student.js
 
 async function handleAddStudent() {

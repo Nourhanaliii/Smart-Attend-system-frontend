@@ -4,8 +4,6 @@ const API_BASE_URL = 'https://django.nextapps.me';
 
 /**
  * دالة مساعدة لقراءة قيمة كوكي معين بالاسم
- * @param {string} name - اسم الكوكي (مثل 'csrftoken')
- * @returns {string|null} - قيمة الكوكي أو null
  */
 function getCookie(name) {
     let cookieValue = null;
@@ -22,11 +20,9 @@ function getCookie(name) {
     return cookieValue;
 }
 
+
 /**
- * دالة لإرسال طلبات fetch مع معالجة الأخطاء والكوكيز
- * @param {string} url - رابط الـ API
- * @param {object} options - إعدادات الطلب (method, headers, body)
- * @returns {Promise<any>} - بيانات الرد من السيرفر
+ * دالة لإرسال طلبات fetch بصيغة JSON
  */
 async function apiRequest(url, options = {}) {
     const defaultOptions = {
@@ -41,7 +37,6 @@ async function apiRequest(url, options = {}) {
 
     const requestOptions = { ...options, ...defaultOptions };
     
-    // لا نرسل body فارغًا مع GET
     if (options.body) {
         requestOptions.body = JSON.stringify(options.body);
     }
@@ -60,23 +55,3 @@ async function apiRequest(url, options = {}) {
         throw error;
     }
 }
-
-// =========== دوال المصادقة (Authentication) ===========
-
-/**
- * تسجيل دخول المستخدم (Admin/Stuff)
- * @param {string} email 
- * @param {string} password 
- * @returns {Promise<object>} - بيانات المستخدم
- */
-async function login(email, password) {
-    console.log("Attempting to log in with email:", email); // للتأكد من أن الدالة تُستدعى
-    const url = `${API_BASE_URL}/api/members/login/`;
-    // نعم، هنا يتم استخدام fetch داخل apiRequest
-    return apiRequest(url, {
-        method: 'POST',
-        body: { email, password }, // وهنا يتم وضع البيانات في الـ body
-    });
-}
-
-// ... باقي دوال الـ API ستأتي هنا لاحقًا ...

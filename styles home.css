@@ -198,6 +198,7 @@ background: rgba(0, 0, 0, 0.5);
 z-index: 1;
 }
 
+/* ✅ هذا هو الجزء المضاف/المعدل */
 .close-popup-btn {
     position: absolute;
     top: 10px;
@@ -206,6 +207,7 @@ z-index: 1;
     font-weight: bold;
     color: #888;
     cursor: pointer;
+    line-height: 1; /* لضمان التوسيط العمودي */
 }
 .close-popup-btn:hover {
     color: #000;

@@ -71,7 +71,7 @@ async function apiRequest(url, options = {}) {
  */
 async function login(email, password) {
     console.log("Attempting to log in with email:", email); // للتأكد من أن الدالة تُستدعى
-    const url = `${API_BASE_URL}/api/auth/login/`;
+    const url = `${API_BASE_URL}/api/members/login/`;
     // نعم، هنا يتم استخدام fetch داخل apiRequest
     return apiRequest(url, {
         method: 'POST',

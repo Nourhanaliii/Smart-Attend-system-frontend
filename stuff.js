@@ -30,8 +30,13 @@ async function loadAndRenderStaff() {
 
     try {
         const staffMembers = await getStaffMembers(); // من api.js
-        // allStaffData = staffMembers.filter(member => member.email !== 'ghonemy22@gmail.com'); // فلترة السوبر أدمن
+// 🔴 قمنا بتعطيل سطر الفلترة
+        // allStaffData = staffMembers.filter(member => member.email !== 'ghonemy22@gmail.com');
+        
+        // ✅ الآن سنستخدم القائمة الكاملة كما هي من الباكاند
+        allStaffData = staffMembers; 
         renderStaffCards(allStaffData);
+        
     } catch (error) {
         cardsContainer.innerHTML = `<p>Error loading staff members: ${error.message}</p>`;
     }

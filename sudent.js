@@ -1,16 +1,64 @@
-// === تفعيل القائمة الجانبية ===
-const sidebar = document.querySelector('.sidebar');
-const hamburger = document.querySelector('.hamburger');
+// =================== student.js (النسخة الكاملة والمدمجة) ===================
 
-hamburger.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
+// --- الجزء 1: الإعداد العام والتحميل الأولي ---
+document.addEventListener('DOMContentLoaded', () => {
+    // التحقق من أن المستخدم مسجل دخوله وهو من فريق العمل
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.is_staff) {
+        alert('You do not have permission to view this page. Redirecting...');
+        window.location.href = 'home.html';
+        return;
+    }
+    
+    // ربط الأحداث العامة (القائمة الجانبية، الكاميرا)
+    setupGeneralEventListeners();
+    
+    // ربط أحداث صفحة الطلاب (إضافة، تعديل، فلاتر)
+    setupStudentPageEventListeners();
+    
+    // جلب وعرض الطلاب عند تحميل الصفحة
+    loadAndRenderStudents();
 });
 
- 
-  // === إدارة الكاميرا الرئيسية ===
-  document.addEventListener('DOMContentLoaded', function() {
+
+// --- الجزء 2: الدوال العامة (يمكن وضعها في ملف منفصل لاحقًا) ---
+
+function setupGeneralEventListeners() {
+    // تفعيل القائمة الجانبية
+    const sidebar = document.querySelector('.sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    if (hamburger && sidebar) {
+        hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
+    }
+
+    // إدارة الكاميرا الرئيسية
+    setupCameraLogic();
+}
+
+/**
+ * دالة لتسجيل الخروج (لأنها مستخدمة في كل الصفحات)
+ */
+async function handleLogout() {
+    try {
+        await logout(); // من ملف api.js
+        localStorage.removeItem('user');
+        window.location.href = 'home.html';
+    } catch (error) {
+        alert(`Logout failed: ${error.message}`);
+    }
+}
+// في ملف HTML، يجب تغيير onclick="logoutUser()" إلى onclick="handleLogout()"
+
+
+// --- الجزء 3: منطق الكاميرا (من الكود الأصلي) ---
+
+let currentPhotoForStudent = null; // متغير لتخزين الصورة الملتقطة للطالب
+
+function setupCameraLogic() {
     const openCameraBtn = document.getElementById('openCameraBtn');
     const cameraModal = document.getElementById('cameraModal');
+    if (!openCameraBtn || !cameraModal) return;
+
     const cameraView = document.getElementById('cameraView');
     const captureBtn = document.getElementById('captureBtn');
     const closeCamera = document.getElementById('closeCamera');
@@ -22,451 +70,234 @@ hamburger.addEventListener('click', () => {
     const uploadPreview = document.getElementById('uploadPreview');
     
     let cameraStream = null;
-    let capturedPhotos = [];
-    let currentPhoto = null;
-    let currentModalType = ''; // 'add' or 'edit' or 'main'
-  
-    // Open main camera
-    openCameraBtn.addEventListener('click', function() {
-        currentModalType = 'main';
+    let currentModalType = ''; // 'add', 'edit', 'main'
+
+    // فتح الكاميرا
+    openCameraBtn.addEventListener('click', () => {
+        currentModalType = 'main'; // هذه الكاميرا لتسجيل الحضور العام
         cameraModal.style.display = 'flex';
         showLiveCamera();
     });
-  
-    // Open camera for student photo
-    function openCameraForStudent(type = 'add') {
-        currentModalType = type;
-        cameraModal.style.display = 'flex';
-        showLiveCamera();
-    }
-  
-    // Show live camera view
-    function showLiveCamera() {
+
+    const closeCameraModal = () => {
+        stopCamera();
+        cameraModal.style.display = 'none';
+    };
+
+    const showLiveCamera = () => {
         liveCameraView.style.display = 'block';
         uploadPhotoView.style.display = 'none';
         openLiveCamera.classList.add('active');
         openUploadPhoto.classList.remove('active');
         startCamera();
-    }
-  
-    // Show upload photo view
-    function showUploadPhoto() {
+    };
+    
+    const showUploadPhoto = () => {
         liveCameraView.style.display = 'none';
         uploadPhotoView.style.display = 'block';
         openLiveCamera.classList.remove('active');
         openUploadPhoto.classList.add('active');
         stopCamera();
-    }
-  
-    // Start camera
-    async function startCamera() {
+    };
+
+    const startCamera = async () => {
         try {
-            stopCamera(); // Stop any active camera
-            
-            cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'user',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: false 
-            });
-            
+            stopCamera();
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             cameraView.srcObject = cameraStream;
         } catch (err) {
             console.error('Camera error:', err);
-            alert('Could not access the camera. Please check permissions.');
+            alert('Could not access the camera.');
         }
-    }
-  
-    // Stop camera
-    function stopCamera() {
+    };
+    
+    const stopCamera = () => {
         if (cameraStream) {
-            cameraStream.getTracks().forEach(track => {
-                track.stop();
-            });
-            cameraStream = null;
+            cameraStream.getTracks().forEach(track => track.stop());
         }
-        
-        if (cameraView.srcObject) {
-            cameraView.srcObject = null;
-        }
-    }
-  
-    // Capture photo
-    captureBtn.addEventListener('click', function() {
-        if (liveCameraView.style.display !== 'none') {
-            // Capture from live camera
-            const canvas = document.createElement('canvas');
-            canvas.width = cameraView.videoWidth;
-            canvas.height = cameraView.videoHeight;
-            canvas.getContext('2d').drawImage(cameraView, 0, 0);
-            
-            currentPhoto = canvas.toDataURL('image/jpeg', 0.9);
-            showCaptureEffect();
-        }
-        
-        // Handle the captured/uploaded photo based on context
-        if (currentModalType === 'add' || currentModalType === 'edit') {
-            const previewId = currentModalType === 'add' ? 'newImagePreview' : 'editImagePreview';
-            const preview = document.getElementById(previewId);
-            preview.src = currentPhoto;
-            preview.style.display = 'block';
-            closeCameraModal();
-        } else {
-            // Main camera functionality
-            savePhotoToDevice(currentPhoto);
-        }
+    };
+
+    captureBtn.addEventListener('click', () => {
+        // ... سيتم ربط هذا الزر لاحقًا بوظيفة تسجيل الحضور ...
+        // حاليًا، سيقوم بالتقاط الصورة فقط
+        alert("Capture button clicked. Face recognition API will be connected here.");
     });
-  
-    // Upload photo
-    photoUpload.addEventListener('change', function(e) {
-        if (e.target.files && e.target.files[0]) {
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                currentPhoto = event.target.result;
-                uploadPreview.src = currentPhoto;
-                uploadPreview.style.display = 'block';
-            }
-            
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    });
-  
-    // Close camera modal
-    function closeCameraModal() {
-        stopCamera();
-        cameraModal.style.display = 'none';
-    }
-  
-    // Event listeners
+    
     openLiveCamera.addEventListener('click', showLiveCamera);
     openUploadPhoto.addEventListener('click', showUploadPhoto);
     closeCamera.addEventListener('click', closeCameraModal);
-    cameraModal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeCameraModal();
-        }
+}
+
+// --- الجزء 4: منطق صفحة الطلاب (CRUD Operations) ---
+
+let allStudentsData = []; // لتخزين بيانات الطلاب الأصلية للبحث والفلترة
+
+function setupStudentPageEventListeners() {
+    document.querySelector('.add-student button').addEventListener('click', openAddModal);
+    document.querySelector('#addStudentModal .save').addEventListener('click', handleAddStudent);
+    document.querySelector('#addStudentModal .cancel').addEventListener('click', closeAddModal);
+    document.querySelector('#editStudentModal .save').addEventListener('click', handleSaveStudentEdit);
+    document.querySelector('#editStudentModal .cancel').addEventListener('click', closeEditModal);
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('level').addEventListener('change', applyFilters);
+    document.getElementById('attendance').addEventListener('change', applyFilters);
+    document.querySelector('.filters button').addEventListener('click', resetFilters);
+    document.getElementById('newStudentImage').addEventListener('change', (e) => previewImage(e, 'newImagePreview'));
+    document.getElementById('editStudentImage').addEventListener('change', (e) => previewImage(e, 'editImagePreview'));
+}
+
+async function loadAndRenderStudents() {
+    const tableBody = document.getElementById('studentsTable');
+    tableBody.innerHTML = `<tr><td colspan="7">Loading students...</td></tr>`;
+    try {
+        const students = await getAllStudents(); // من api.js
+        allStudentsData = students;
+        renderTable(students);
+    } catch (error) {
+        tableBody.innerHTML = `<tr><td colspan="7">Error loading data.</td></tr>`;
+    }
+}
+
+function renderTable(studentsToRender) {
+    const tableBody = document.getElementById('studentsTable');
+    tableBody.innerHTML = '';
+    studentsToRender.forEach(student => {
+        const row = document.createElement('tr');
+        const studentId = student.student_id;
+        row.innerHTML = `
+            <td><img src="${student.avatar || 'https://via.placeholder.com/50?text=N/A'}" class="student-photo"></td>
+            <td>${student.name}</td>
+            <td>${studentId}</td>
+            <td>******</td>
+            <td>${student.level}</td>
+            <td class="rating">${'★'.repeat(student.attendance)}${'☆'.repeat(5 - student.attendance)}</td>
+            <td class="actions">
+                <button class="edit" onclick="openEditModal('${studentId}')"><i class="fas fa-edit"></i> Edit</button>
+                <button class="delete" onclick="handleDeleteStudent('${studentId}')"><i class="fas fa-trash"></i> Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
     });
-  
-    // Save photo to device (for main camera)
-    function savePhotoToDevice(imageData) {
-        const link = document.createElement('a');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        link.download = `photo-${timestamp}.jpg`;
-        link.href = imageData;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        capturedPhotos.push(imageData);
-        localStorage.setItem('capturedPhotos', JSON.stringify(capturedPhotos));
-        console.log('Photo saved to device and local storage');
-    }
-  
-    // Flash effect
-    function showCaptureEffect() {
-        const flash = document.createElement('div');
-        flash.style.position = 'fixed';
-        flash.style.top = '0';
-        flash.style.left = '0';
-        flash.style.width = '100%';
-        flash.style.height = '100%';
-        flash.style.backgroundColor = 'white';
-        flash.style.opacity = '0.8';
-        flash.style.zIndex = '2000';
-        flash.style.animation = 'fadeOut 0.5s forwards';
-        
-        document.body.appendChild(flash);
-        
-        setTimeout(() => {
-            document.body.removeChild(flash);
-        }, 500);
-    }
-  
-    // Load saved photos
-    function loadSavedPhotos() {
-        const savedPhotos = localStorage.getItem('capturedPhotos');
-        if (savedPhotos) {
-            capturedPhotos = JSON.parse(savedPhotos);
-            console.log('Loaded saved photos:', capturedPhotos.length);
-        }
-    }
+}
+
+async function handleAddStudent() {
+    const studentId = document.getElementById('newStudentID').value;
+    const name = document.getElementById('newStudentName').value;
+    const level = document.getElementById('newStudentLevel').value;
+    const imageFile = document.getElementById('newStudentImage').files[0];
+
+    if (!studentId || !name || !level) return alert("Please fill all required fields.");
+
+    const formData = new FormData();
+    formData.append('student_id', studentId);
+    formData.append('name', name);
+    formData.append('level', level);
+    if (imageFile) formData.append('avatar', imageFile);
+
+    const btn = document.querySelector('#addStudentModal .save');
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
     
-    loadSavedPhotos();
-  });
-  
-
-
-
-    // === إدارة الطلاب ===
-    let students = JSON.parse(localStorage.getItem('studentsData')) || [
-        { name: "Malak Ahmed", id: "2101206", password: "pass123", level: "Level 4", attendance: 5, photo: "" },
-        { name: "Ali Hassan", id: "2101207", password: "pass456", level: "Level 3", attendance: 4, photo: "" },
-        { name: "Sara Khalid", id: "2101208", password: "pass789", level: "Level 2", attendance: 3, photo: "" },
-        { name: "Omar Saeed", id: "2101209", password: "pass101", level: "Level 4", attendance: 5, photo: "" },
-        { name: "Laila Noor", id: "2101210", password: "pass202", level: "Level 1", attendance: 2, photo: "" }
-    ];
-
-    const studentsTable = document.getElementById('studentsTable');
-    const addStudentModal = document.getElementById('addStudentModal');
-    const editStudentModal = document.getElementById('editStudentModal');
-
-    let editIndex = null;
-    let currentPhoto = null;
-
-    // عرض جدول الطلاب
-    function renderTable(data = students) {
-        if (!studentsTable) return;
-        
-        studentsTable.innerHTML = '';
-        data.forEach((student, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <img src="${student.photo || 'https://via.placeholder.com/50?text=No+Photo'}" 
-                         class="student-photo" 
-                         alt="Student Photo">
-                </td>
-                <td>${student.name}</td>
-                <td>${student.id}</td>
-                <td class="password-cell">${student.password}</td>
-                <td>${student.level}</td>
-                <td class="rating">${'★'.repeat(student.attendance)}${'☆'.repeat(5 - student.attendance)}</td>
-                <td class="actions">
-                    <button class="edit" onclick="openEditModal(${index})">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="delete" onclick="deleteStudent(${index})">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </td>
-            `;
-            studentsTable.appendChild(row);
-        });
-        
-        localStorage.setItem('studentsData', JSON.stringify(students));
-    }
-
-
-    // البحث في الهيدر العلوي
-document.querySelector('.search-bar').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredStudents = students.filter(student => {
-        return student.name.toLowerCase().includes(searchTerm) || 
-               student.id.toLowerCase().includes(searchTerm);
-    });
-    renderTable(filteredStudents);
-});  
-
-
-    // تطبيق الفلاتر
-  // تطبيق الفلاتر (الإصدار المعدل)
-function applyFilters() {
-    const search = document.getElementById('search')?.value.toLowerCase();
-    const level = document.getElementById('level')?.value;
-    const attendance = document.getElementById('attendance')?.value;
-
-    const filteredStudents = students.filter(student => {
-        const matchesSearch = !search || 
-            student.name.toLowerCase().includes(search) || 
-            student.id.toLowerCase().includes(search);
-        
-        const matchesLevel = !level || student.level === level;
-        const matchesAttendance = !attendance || student.attendance === parseInt(attendance);
-
-        return matchesSearch && matchesLevel && matchesAttendance;
-    });
-
-    renderTable(filteredStudents);
-}
-
-// إعادة تعيين الفلاتر (الإصدار المعدل)
-window.resetFilters = function() {
-    document.getElementById('search').value = '';
-    document.getElementById('level').value = '';
-    document.getElementById('attendance').value = '';
-    renderTable();
-}
-
-    // حذف طالب
-    window.deleteStudent = function(index) {
-        if (confirm('Are you sure you want to delete this student?')) {
-            students.splice(index, 1);
-            renderTable();
-        }
-    }
-
-    // فتح نافذة إضافة طالب
-    window.openAddModal = function() {
-        if (!addStudentModal) return;
-        
-        document.getElementById('newStudentName').value = '';
-        document.getElementById('newStudentID').value = '';
-        document.getElementById('newStudentPassword').value = '';
-        document.getElementById('newStudentLevel').value = '';
-        document.getElementById('newStudentAttendance').value = '';
-        
-        const newImagePreview = document.getElementById('newImagePreview');
-        if (newImagePreview) {
-            newImagePreview.src = '';
-            newImagePreview.style.display = 'none';
-        }
-        
-        const newStudentImage = document.getElementById('newStudentImage');
-        if (newStudentImage) newStudentImage.value = '';
-        
-        currentPhoto = null;
-        addStudentModal.style.display = 'flex';
-    }
-
-    // إغلاق نافذة إضافة طالب
-    window.closeAddModal = function() {
-        if (addStudentModal) addStudentModal.style.display = 'none';
-    }
-
-    // فتح نافذة تعديل طالب
-    window.openEditModal = function(index) {
-        if (!editStudentModal) return;
-        
-        editIndex = index;
-        const student = students[index];
-        
-        document.getElementById('editStudentName').value = student.name;
-        document.getElementById('editStudentID').value = student.id;
-        document.getElementById('editStudentPassword').value = student.password;
-        document.getElementById('editStudentLevel').value = student.level;
-        document.getElementById('editStudentAttendance').value = student.attendance;
-        
-        const editImagePreview = document.getElementById('editImagePreview');
-        if (editImagePreview) {
-            editImagePreview.src = student.photo || 'https://via.placeholder.com/150?text=No+Photo';
-            editImagePreview.style.display = student.photo ? 'block' : 'none';
-        }
-        
-        const editStudentImage = document.getElementById('editStudentImage');
-        if (editStudentImage) editStudentImage.value = '';
-        
-        currentPhoto = student.photo;
-        editStudentModal.style.display = 'flex';
-    }
-
-    // إغلاق نافذة تعديل طالب
-    window.closeEditModal = function() {
-        if (editStudentModal) editStudentModal.style.display = 'none';
-    }
-
-// معاينة الصورة قبل رفعها (للإضافة)
-window.previewNewImage = function(event) {
-    const input = event.target;
-    const newImagePreview = document.getElementById('newImagePreview');
-    const uploadLabel = document.getElementById('newUploadLabel');
-    
-    if (input.files && input.files[0] && newImagePreview) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            currentPhoto = e.target.result;
-            newImagePreview.src = currentPhoto;
-            newImagePreview.style.display = 'block';
-            if (uploadLabel) uploadLabel.textContent = 'Change Photo';
-        }
-        
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-// معاينة الصورة قبل رفعها (للتعديل)
-window.previewEditImage = function(event) {
-    const input = event.target;
-    const editImagePreview = document.getElementById('editImagePreview');
-    const editUploadLabel = document.getElementById('editUploadLabel');
-    
-    if (input.files && input.files[0] && editImagePreview) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            currentPhoto = e.target.result;
-            editImagePreview.src = currentPhoto;
-            editImagePreview.style.display = 'block';
-            if (editUploadLabel) editUploadLabel.textContent = 'Change Photo';
-        }
-        
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-    // إضافة طالب جديد
-    window.addStudent = function() {
-        const name = document.getElementById('newStudentName')?.value.trim();
-        const id = document.getElementById('newStudentID')?.value.trim();
-        const password = document.getElementById('newStudentPassword')?.value.trim();
-        const level = document.getElementById('newStudentLevel')?.value;
-        const attendance = document.getElementById('newStudentAttendance')?.value;
-
-        if (!name || !id || !password || !level || !attendance) {
-            alert("Please fill in all required fields.");
-            return;
-        }
-
-        if (attendance < 1 || attendance > 5) {
-            alert("Attendance must be between 1 and 5.");
-            return;
-        }
-
-        const newStudent = {
-            name,
-            id,
-            password,
-            level,
-            attendance: parseInt(attendance),
-            photo: currentPhoto || ''
-        };
-
-        students.push(newStudent);
-        renderTable();
+    try {
+        await addStudent(formData); // من api.js
+        alert('Student added successfully!');
         closeAddModal();
+        loadAndRenderStudents();
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save';
     }
+}
 
-    // حفظ تعديلات الطالب
-    window.saveStudentEdit = function() {
-        const name = document.getElementById('editStudentName')?.value.trim();
-        const id = document.getElementById('editStudentID')?.value.trim();
-        const password = document.getElementById('editStudentPassword')?.value.trim();
-        const level = document.getElementById('editStudentLevel')?.value;
-        const attendance = document.getElementById('editStudentAttendance')?.value;
+async function handleDeleteStudent(studentId) {
+    if (!confirm(`Delete student ${studentId}?`)) return;
+    try {
+        await deleteStudent(studentId); // من api.js
+        alert('Student deleted!');
+        loadAndRenderStudents();
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
 
-        if (!name || !id || !password || !level || !attendance) {
-            alert("Please fill in all required fields.");
-            return;
-        }
+let studentIdToEdit = null;
 
-        if (attendance < 1 || attendance > 5) {
-            alert("Attendance must be between 1 and 5.");
-            return;
-        }
+function openEditModal(studentId) {
+    studentIdToEdit = studentId;
+    const student = allStudentsData.find(s => s.student_id === studentId);
+    if (!student) return;
+    
+    document.getElementById('editStudentName').value = student.name;
+    document.getElementById('editStudentID').value = student.student_id;
+    document.getElementById('editStudentLevel').value = student.level;
+    document.getElementById('editStudentAttendance').value = student.attendance;
+    document.getElementById('editImagePreview').src = student.avatar || 'https://via.placeholder.com/150';
+    document.getElementById('editImagePreview').style.display = 'block';
+    
+    document.getElementById('editStudentModal').style.display = 'flex';
+}
 
-        students[editIndex] = {
-            name,
-            id,
-            password,
-            level,
-            attendance: parseInt(attendance),
-            photo: currentPhoto || students[editIndex].photo || ''
-        };
+async function handleSaveStudentEdit() {
+    if (!studentIdToEdit) return;
+    const data = {
+        name: document.getElementById('editStudentName').value,
+        level: document.getElementById('editStudentLevel').value,
+        attendance: parseInt(document.getElementById('editStudentAttendance').value)
+    };
 
-        renderTable();
+    // كود تعديل الصورة يحتاج endpoint خاص به، سنتجاهله الآن
+    
+    const btn = document.querySelector('#editStudentModal .save');
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
+
+    try {
+        await updateStudent(studentIdToEdit, data); // من api.js
+        alert('Student updated!');
         closeEditModal();
+        loadAndRenderStudents();
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save';
     }
+}
 
-    // أحداث الفلاتر
-    const searchInput = document.getElementById('search');
-    const levelSelect = document.getElementById('level');
-    const attendanceSelect = document.getElementById('attendance');
+// دوال الواجهة المساعدة
+function openAddModal() {
+    document.getElementById('addStudentModal').style.display = 'flex';
+    document.getElementById('addStudentModal').querySelector('form')?.reset();
+    document.getElementById('newImagePreview').style.display = 'none';
+}
+function closeAddModal() { document.getElementById('addStudentModal').style.display = 'none'; }
+function closeEditModal() { document.getElementById('editStudentModal').style.display = 'none'; }
 
-    if (searchInput) searchInput.addEventListener('input', applyFilters);
-    if (levelSelect) levelSelect.addEventListener('change', applyFilters);
-    if (attendanceSelect) attendanceSelect.addEventListener('change', applyFilters);
+function previewImage(event, previewId) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        const preview = document.getElementById(previewId);
+        preview.src = reader.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
 
-    // التحميل الأولي
-    renderTable();
+function applyFilters() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const level = document.getElementById('level').value;
+    const attendance = document.getElementById('attendance').value;
+    const filtered = allStudentsData.filter(s => 
+        (s.name.toLowerCase().includes(search) || s.student_id.includes(search)) &&
+        (!level || s.level === level) &&
+        (!attendance || s.attendance === parseInt(attendance))
+    );
+    renderTable(filtered);
+}
+
+function resetFilters() {
+    document.querySelector('.filters form')?.reset();
+    renderTable(allStudentsData);
+}

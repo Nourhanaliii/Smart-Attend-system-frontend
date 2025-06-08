@@ -1,5 +1,4 @@
 // =================== api.js ===================
-// هذا الملف سيحتوي على كل دوال التواصل مع الباكاند
 
 const API_BASE_URL = 'https://django.nextapps.me';
 
@@ -30,44 +29,37 @@ function getCookie(name) {
  * @returns {Promise<any>} - بيانات الرد من السيرفر
  */
 async function apiRequest(url, options = {}) {
-    // إعدادات افتراضية لكل الطلبات
     const defaultOptions = {
         mode: 'cors',
-        credentials: 'include', // أهم جزء لإرسال واستقبال الكوكيز
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'), // إرسال التوكن مع كل طلب
+            'X-CSRFToken': getCookie('csrftoken'),
             ...options.headers,
         },
     };
 
     const requestOptions = { ...options, ...defaultOptions };
-    // إذا كان الطلب GET، لا نرسل body
-    if (requestOptions.method === 'GET' || requestOptions.method === 'HEAD') {
-        delete requestOptions.body;
-    } else {
+    
+    // لا نرسل body فارغًا مع GET
+    if (options.body) {
         requestOptions.body = JSON.stringify(options.body);
     }
 
     try {
         const response = await fetch(url, requestOptions);
+        const responseData = await response.json();
+        
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('API Error:', errorData);
-            // رمي الخطأ ليتم التقاطه في دالة catch
-            throw new Error(errorData.detail || errorData.error || 'An unknown error occurred');
+            console.error('API Error Response:', responseData);
+            throw new Error(responseData.detail || responseData.error || 'An unknown API error occurred');
         }
-        // إذا كان الرد فارغًا (مثل 204 No Content)
-        if (response.status === 204) {
-            return null;
-        }
-        return await response.json();
+        return responseData;
     } catch (error) {
-        console.error('Fetch failed:', error);
-        throw error; // إعادة رمي الخطأ لمعالجته في مكان استدعاء الدالة
+        console.error('Fetch failed:', error.message);
+        throw error;
     }
 }
-
 
 // =========== دوال المصادقة (Authentication) ===========
 
@@ -78,32 +70,13 @@ async function apiRequest(url, options = {}) {
  * @returns {Promise<object>} - بيانات المستخدم
  */
 async function login(email, password) {
+    console.log("Attempting to log in with email:", email); // للتأكد من أن الدالة تُستدعى
     const url = `${API_BASE_URL}/api/auth/login/`;
+    // نعم، هنا يتم استخدام fetch داخل apiRequest
     return apiRequest(url, {
         method: 'POST',
-        body: { email, password },
+        body: { email, password }, // وهنا يتم وضع البيانات في الـ body
     });
 }
 
-/**
- * تسجيل الخروج
- */
-async function logout() {
-    const url = `${API_BASE_URL}/api/auth/logout/`;
-    // طلب GET لا يحتاج body
-    return apiRequest(url, { method: 'GET' });
-}
-
-
-// =========== دوال الطلاب (Students) ===========
-
-// ... سنضيفها لاحقًا ...
-
-
-// =========== دوال الكورسات (Courses) ===========
-
-// ... سنضيفها لاحقًا ...
-
-// =========== دوال الطلبات (Requests) ===========
-
-// ... سنضيفها لاحقًا ...
+// ... باقي دوال الـ API ستأتي هنا لاحقًا ...

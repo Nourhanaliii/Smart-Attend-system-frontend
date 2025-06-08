@@ -197,7 +197,7 @@ function renderTable(studentsToRender) {
     });
 }
 
-// ... باقي دوال الملف تبقى كما هي ...
+// ... باقي دوال الملف تبقى كما هي ......
 // في ملف student.js
 
 async function handleAddStudent() {

@@ -180,34 +180,45 @@ function renderTable(studentsToRender) {
     });
 }
 
+// في ملف student.js
+
 async function handleAddStudent() {
-    const studentId = document.getElementById('newStudentID').value;
-    const name = document.getElementById('newStudentName').value;
-    const level = document.getElementById('newStudentLevel').value;
-    const imageFile = document.getElementById('newStudentImage').files[0];
+    const studentIdInput = document.getElementById('newStudentID');
+    const nameInput = document.getElementById('newStudentName');
+    const levelSelect = document.getElementById('newStudentLevel'); // 👈 استهداف الـ select
+    const imageInput = document.getElementById('newStudentImage');
 
-    if (!studentId || !name || !level) return alert("Please fill all required fields.");
-
-    const formData = new FormData();
-    formData.append('student_id', studentId);
-    formData.append('name', name);
-    formData.append('level', level);
-    if (imageFile) formData.append('avatar', imageFile);
-
-    const btn = document.querySelector('#addStudentModal .save');
-    btn.disabled = true;
-    btn.innerText = 'Saving...';
+    // 🔴 حذف حقل كلمة المرور من هنا، لم نعد بحاجة إليه
+    if (!studentIdInput.value || !nameInput.value || !levelSelect.value) {
+        alert("Please fill in Name, ID, and Level.");
+        return;
+    }
     
+    const formData = new FormData();
+    formData.append('student_id', studentIdInput.value.trim());
+    formData.append('name', nameInput.value.trim());
+    // ✅ إرسال القيمة كنص كامل مثل "Level 4"
+    formData.append('level', levelSelect.value); 
+    
+    if (imageInput.files[0]) {
+        formData.append('avatar', imageInput.files[0]);
+    }
+    
+    // ... باقي الكود يبقى كما هو ...
+    const saveBtn = document.querySelector('#addStudentModal .save');
+    saveBtn.innerText = 'Saving...';
+    saveBtn.disabled = true;
+
     try {
-        await addStudent(formData); // من api.js
+        await addStudent(formData);
         alert('Student added successfully!');
         closeAddModal();
         loadAndRenderStudents();
     } catch (error) {
-        alert(`Error: ${error.message}`);
+        alert(`Failed to add student: ${error.message}`);
     } finally {
-        btn.disabled = false;
-        btn.innerText = 'Save';
+        saveBtn.innerText = 'Save';
+        saveBtn.disabled = false;
     }
 }
 

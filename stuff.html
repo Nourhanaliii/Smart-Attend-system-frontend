@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teaching Stuff</title>
+    <title>Teaching Staff</title>
     <link rel="stylesheet" href="stuff.css">
-    
 </head>
 <body>
     <div class="hamburger">☰</div>
     <div class="sidebar">
         <h1>Attendify</h1>
+        <!-- ✅ القائمة الجانبية كاملة هنا -->
         <ul>
             <li><a href="dashboard.html"><img src="dashboard.png" alt="Dashboard">Dashboard</a></li>
             <li><a href="Request list.html"><img src="request.png" alt="Requests">Requests List</a></li>
@@ -21,7 +21,8 @@
         </ul>
         <div class="sidebar-bottom">
             <li><a href="settings.html"><img src="setting.png" alt="Settings">Settings</a></li>
-            <li><a href="home.html"><img src="logout.png" alt="Logout">Logout</a></li>
+            <!-- ✅ تعديل مهم هنا لاستدعاء دالة JS -->
+            <li><a href="#" onclick="handleLogout()"><img src="logout.png" alt="Logout">Logout</a></li>
         </div>
     </div>
 
@@ -33,80 +34,11 @@
         </div>
 
         <section class="cards">
-            <!-- الكروت الأصلية -->
-            <div class="card">
-                <img src="jason price.png" alt="Marim Ali">
-                <h3>Marim Ali</h3>
-                <p>Assistant Lecture</p>
-                <p>marim-ali@yahoo.com</p>
-            </div>
-            
-            <div class="card">
-                <img src="harriet king.png" alt="Ali Adam">
-                <h3>Ali Adam</h3>
-                <p>Lecture</p>
-                <p>Ali_adam@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="mahmoud.png" alt="Mahmoud Mohamed">
-                <h3>Mahmoud Mohamed</h3>
-                <p>Teaching Assistant</p>
-                <p>Mahmoud_mohamed@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="mostafa.png" alt="Mostafa Mohamed">
-                <h3>Mostafa Mohamed</h3>
-                <p>Lecture</p>
-                <p>Mostafa_mohamed@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="Waal.png" alt="Waal Mahmoud">
-                <h3>Waal Mahmoud</h3>
-                <p>Assistant Lecture</p>
-                <p>Waal_mohamed@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="hasham.png" alt="Hasham Gamal">
-                <h3>Hasham Gamal</h3>
-                <p>Lecture</p>
-                <p>hasham-gamal@yahoo.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="laila.png" alt="Laila Hamza">
-                <h3>Laila Hamza</h3>
-                <p>Teaching Assistant</p>
-                <p>laila_hamza@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="badr.png" alt="Badr Hossam">
-                <h3>Badr Hossam</h3>
-                <p>Teaching Assistant</p>
-                <p>badr-hossam@yahoo.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="nagat.png" alt="Nagat Mohamed">
-                <h3>Nagat Mohamed</h3>
-                <p>Teaching Assistant</p>
-                <p>nagat_mohamed@gmail.com</p>
-            </div>
-        
-            <div class="card">
-                <img src="mazen.png" alt="Mazen Badr">
-                <h3>Mazen Badr</h3>
-                <p>Assistant Lecture</p>
-                <p>mazen-badr@yahoo.com</p>
-            </div>
+            <!-- 🔴 هذا القسم فارغ عن قصد، سيتم ملؤه بواسطة JavaScript -->
         </section>
     </div>
 
-    <!-- مودال إضافة عضو جديد -->
+    <!-- مودال إضافة عضو جديد (بدون حقل كلمة مرور) -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <h3>Add New Member</h3>
@@ -124,33 +56,22 @@
                 <input type="email" id="memberEmail" placeholder="Enter email">
             </div>
             <div class="form-group">
-                <label>Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="memberPassword" placeholder="Enter password">
-                    <span class="toggle-password" onclick="togglePasswordVisibility()">
-                        <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
-                            <path class="eye" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle class="pupil" cx="12" cy="12" r="3"/>
-                        </svg>
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
                 <label>Role</label>
                 <select id="memberRole">
                     <option value="Lecture">Lecture</option>
-                    <option value="Assistant Lecture">Assistant Lecture</option>
-                    <option value="Teaching Assistant">Teaching Assistant</option>
+                    <option value="teacher assist">Teacher Assistant</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
             <div class="modal-actions">
-                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-                <button class="save-btn" onclick="saveMember()">Save</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="save-btn">Save</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="stuff.js"></script>
+    <!-- ✅ ربط ملفات JS بالترتيب الصحيح -->
+    <script src="api.js" defer></script>
+    <script src="stuff.js" defer></script>
 </body>
 </html>

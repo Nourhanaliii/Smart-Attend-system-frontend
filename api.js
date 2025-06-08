@@ -1,8 +1,8 @@
-// =================== api.js (النسخة النهائية والمصححة) ===================
+// =================== api.js (النسخة النهائية والمصححة تمامًا) ===================
 
 const API_BASE_URL = 'https://django.nextapps.me';
 
-// --- الدوال المساعدة (تبقى كما هي) ---
+// --- الدوال المساعدة (لا تغيير هنا) ---
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -18,79 +18,84 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// --- دوال المصادقة (تبقى كما هي) ---
-async function apiRequest(url, options = {}) { /* ... الكود هنا لا يتغير ... */ }
-async function login(email, password) { /* ... الكود هنا لا يتغير ... */ }
-async function logout() { /* ... الكود هنا لا يتغير ... */ }
+// --- دالة إرسال الطلبات العامة (لا تغيير هنا) ---
+async function apiRequest(url, options = {}) {
+    const defaultOptions = {
+        mode: 'cors', credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken'), ...options.headers },
+    };
+    const requestOptions = { ...options, ...defaultOptions };
+    if (options.body) { requestOptions.body = JSON.stringify(options.body); }
+    try {
+        const response = await fetch(url, requestOptions);
+        if (response.status === 204) return null;
+        const responseData = await response.json();
+        if (!response.ok) {
+            const errorMsg = Object.values(responseData).flat().join(', ');
+            throw new Error(errorMsg || 'An unknown API error occurred');
+        }
+        return responseData;
+    } catch (error) {
+        console.error('Fetch failed:', error.message);
+        throw error;
+    }
+}
 
+// =========================================================================
+// ✅ الجزء الذي تم إصلاحه: تعريف كل الدوال بشكل صحيح ومنظم
+// =========================================================================
 
-// =========== ✅ الجزء الذي سنقوم بتعديله: دوال الطلاب (Students) ===========
+// --- 1. دوال المصادقة ---
+async function login(email, password) {
+    const url = `${API_BASE_URL}/api/members/login/`;
+    return apiRequest(url, { method: 'POST', body: { email, password } });
+}
 
-/**
- * جلب قائمة كل الطلاب
- */
+async function logout() {
+    const url = `${API_BASE_URL}/api/members/logout/`;
+    return apiRequest(url, { method: 'GET' });
+}
+
+// --- 2. دوال الطلاب ---
 async function getAllStudents() {
     const url = `${API_BASE_URL}/api/students/`;
     return apiRequest(url, { method: 'GET' });
 }
 
-/**
- * إضافة طالب جديد
- * @param {FormData} formData - يحتوي على (student_id, name, level, avatar)
- */
 async function addStudent(formData) {
     const url = `${API_BASE_URL}/api/students/add-new-student/`;
-    
-    // 🔴 هذا هو التعديل الجوهري. سنستخدم fetch مباشرة هنا 
-    // لضمان التحكم الكامل في الـ Headers عند التعامل مع FormData.
     try {
-        const csrfToken = getCookie('csrftoken'); // نقرأ التوكن أولاً
+        const csrfToken = getCookie('csrftoken');
         if (!csrfToken) {
-            // إذا لم نجد التوكن، نطلق خطأ واضحًا
             throw new Error('CSRF token not found. Please log in again.');
         }
-
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                // لا نضع 'Content-Type'، المتصفح سيحددها بنفسه مع FormData
-                'X-CSRFToken': csrfToken, // نرسل التوكن الذي قرأناه
-            },
-            credentials: 'include', // مهم جدًا لإرسال الكوكيز
+            headers: { 'X-CSRFToken': csrfToken },
+            credentials: 'include',
             body: formData,
         });
-        
         const result = await response.json();
         if (!response.ok) {
-            // معالجة رسائل الخطأ من الباكاند
             const errorMsg = Object.values(result).flat().join(', ');
-            throw new Error(errorMsg || 'Failed to add student due to a server error.');
+            throw new Error(errorMsg || 'Failed to add student.');
         }
         return result;
-
     } catch (error) {
         console.error('Add student API call failed:', error);
-        // إعادة رمي الخطأ ليتم التقاطه في student.js وعرضه للمستخدم
         throw error;
     }
 }
 
-
-/**
- * حذف طالب
- */
 async function deleteStudent(studentId) {
     const url = `${API_BASE_URL}/api/students/${studentId}/delete/`;
     return apiRequest(url, { method: 'DELETE' });
 }
 
-/**
- * تعديل بيانات طالب
- */
 async function updateStudent(studentId, data) {
     const url = `${API_BASE_URL}/api/students/update/${studentId}/`;
-    return apiRequest(url, {
-        method: 'PATCH',
-        body: data,
-    });
+    return apiRequest(url, { method: 'PATCH', body: data });
 }
+
+// --- 3. دوال فريق العمل (Stuff) ---
+// ... سنضيفها لاحقًا عند العمل على صفحة Stuff ...

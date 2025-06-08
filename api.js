@@ -1,4 +1,4 @@
-// =================== api.js (The Final and Clean Version) ===================
+// =================== api.js (The Final, Complete, and Correct Version) ===================
 
 const API_BASE_URL = 'https://django.nextapps.me';
 
@@ -131,4 +131,19 @@ async function addStaffMember(formData) {
         console.error('Add Staff Member API call failed:', error);
         throw error;
     }
+}
+
+
+// --- 4. Courses Functions ---
+async function getAllCourses() {
+    const url = `${API_BASE_URL}/api/courses/courses/`;
+    return apiRequest(url, { method: 'GET' });
+}
+
+async function addCourse(courseData) {
+    const url = `${API_BASE_URL}/api/courses/courses/`;
+    return apiRequest(url, {
+        method: 'POST',
+        body: courseData,
+    });
 }

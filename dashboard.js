@@ -33,7 +33,10 @@ async function loadDashboardData() {
 
 function updateStatCard(elementId, value) {
     const element = document.getElementById(elementId);
-    if (element) element.textContent = value ?? '0';
+    if (element) {
+        // ✅ هذا هو التصحيح: طريقة أكثر أمانًا وتوافقًا للتحقق من القيمة.
+        element.textContent = (value !== null && value !== undefined) ? value : '0';
+    }
 }
 
 function renderAttendanceHistory(history) {

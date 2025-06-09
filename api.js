@@ -1,21 +1,29 @@
-// =================== api.js (The Final and Corrected Version) ===================
+// =================== api.js (The Final and Correct Version - All Functions Included) ===================
 
 const API_BASE_URL = 'https://django.nextapps.me';
 
-// --- General API Request Function ---
+// --- General Purpose Request Functions ---
+
+// For JSON data
 async function apiRequest(url, options = {}) {
     const csrfToken = localStorage.getItem('csrfToken');
     const defaultOptions = {
-        mode: 'cors', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken, ...options.headers },
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            ...options.headers
+        },
     };
     const requestOptions = { ...options, ...defaultOptions };
-    if (options.body && !(options.body instanceof FormData)) {
+    if (options.body) {
         requestOptions.body = JSON.stringify(options.body);
     }
     try {
         const response = await fetch(url, requestOptions);
         if (response.status === 204) return null;
+        
         const responseData = await response.json();
         if (!response.ok) {
             const errorMsg = Object.values(responseData).flat().join(', ');
@@ -28,7 +36,7 @@ async function apiRequest(url, options = {}) {
     }
 }
 
-// --- General FormData Request Function ---
+// For FormData (file uploads)
 async function apiFormDataRequest(url, formData) {
     try {
         const csrfToken = localStorage.getItem('csrfToken');
@@ -48,9 +56,11 @@ async function apiFormDataRequest(url, formData) {
     }
 }
 
+
 // --- 1. Authentication Functions ---
 async function login(email, password) {
-    const url = `${API_BASE_URL}/api/auth/login/`; // Using /api/auth/ for consistency
+    // ✅ هذا هو التصحيح: استخدام المسار الصحيح الذي يعمل
+    const url = `${API_BASE_URL}/api/members/login/`; 
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -67,9 +77,11 @@ async function login(email, password) {
 }
 
 async function logout() {
-    const url = `${API_BASE_URL}/api/auth/logout/`;
+    // ✅ التصحيح هنا أيضًا
+    const url = `${API_BASE_URL}/api/members/logout/`;
     return apiRequest(url, { method: 'GET' });
 }
+
 
 // --- 2. Student Functions ---
 async function getAllStudents() {
@@ -82,9 +94,20 @@ async function addStudent(formData) {
     return apiFormDataRequest(url, formData);
 }
 
+async function deleteStudent(studentId) {
+    const url = `${API_BASE_URL}/api/students/${studentId}/delete/`;
+    return apiRequest(url, { method: 'DELETE' });
+}
+
+async function updateStudent(studentId, data) {
+    const url = `${API_BASE_URL}/api/students/update/${studentId}/`;
+    return apiRequest(url, { method: 'PATCH', body: data });
+}
+
+
 // --- 3. Staff / Members Functions ---
 async function getStaffMembers() {
-    const url = `${API_BASE_URL}/api/members/users/`; // Correct URL
+    const url = `${API_BASE_URL}/api/members/users/`;
     return apiRequest(url, { method: 'GET' });
 }
 
@@ -92,6 +115,7 @@ async function addStaffMember(formData) {
     const url = `${API_BASE_URL}/api/members/add-new-member/`;
     return apiFormDataRequest(url, formData);
 }
+
 
 // --- 4. Courses Functions ---
 async function getAllCourses() {

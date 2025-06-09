@@ -1,176 +1,251 @@
-// =================== dashboard.js (Final Integrated Version) ===================
 
-// --- 1. Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuthAndInit();
+
+    // === تفعيل القائمة الجانبية ===
+    // === تفعيل القائمة الجانبية ===
+const sidebar = document.querySelector('.sidebar');
+const hamburger = document.querySelector('.hamburger');
+
+
+hamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
 });
 
-function checkAuthAndInit() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-        alert('You are not logged in. Redirecting...');
-        window.location.href = 'home.html';
-        return;
-    }
-    setupEventListeners();
-    loadDashboardData();
-    initializeChart();
+// === إدارة الكاميرا الرئيسية ===
+document.addEventListener('DOMContentLoaded', function() {
+  const openCameraBtn = document.getElementById('openCameraBtn');
+  const cameraModal = document.getElementById('cameraModal');
+  const cameraView = document.getElementById('cameraView');
+  const captureBtn = document.getElementById('captureBtn');
+  const closeCamera = document.getElementById('closeCamera');
+  const openLiveCamera = document.getElementById('openLiveCamera');
+  const openUploadPhoto = document.getElementById('openUploadPhoto');
+  const liveCameraView = document.getElementById('liveCameraView');
+  const uploadPhotoView = document.getElementById('uploadPhotoView');
+  const photoUpload = document.getElementById('photoUpload');
+  const uploadPreview = document.getElementById('uploadPreview');
+  
+  let cameraStream = null;
+  let capturedPhotos = [];
+  let currentPhoto = null;
+  let currentModalType = ''; // 'add' or 'edit' or 'main'
+
+  // Open main camera
+  openCameraBtn.addEventListener('click', function() {
+      currentModalType = 'main';
+      cameraModal.style.display = 'flex';
+      showLiveCamera();
+  });
+
+  // Open camera for student photo
+  function openCameraForStudent(type = 'add') {
+      currentModalType = type;
+      cameraModal.style.display = 'flex';
+      showLiveCamera();
+  }
+
+  // Show live camera view
+  function showLiveCamera() {
+      liveCameraView.style.display = 'block';
+      uploadPhotoView.style.display = 'none';
+      openLiveCamera.classList.add('active');
+      openUploadPhoto.classList.remove('active');
+      startCamera();
+  }
+
+  // Show upload photo view
+  function showUploadPhoto() {
+      liveCameraView.style.display = 'none';
+      uploadPhotoView.style.display = 'block';
+      openLiveCamera.classList.remove('active');
+      openUploadPhoto.classList.add('active');
+      stopCamera();
+  }
+
+  // Start camera
+  async function startCamera() {
+      try {
+          stopCamera(); // Stop any active camera
+          
+          cameraStream = await navigator.mediaDevices.getUserMedia({ 
+              video: { 
+                  facingMode: 'user',
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+              },
+              audio: false 
+          });
+          
+          cameraView.srcObject = cameraStream;
+      } catch (err) {
+          console.error('Camera error:', err);
+          alert('Could not access the camera. Please check permissions.');
+      }
+  }
+
+  // Stop camera
+  function stopCamera() {
+      if (cameraStream) {
+          cameraStream.getTracks().forEach(track => {
+              track.stop();
+          });
+          cameraStream = null;
+      }
+      
+      if (cameraView.srcObject) {
+          cameraView.srcObject = null;
+      }
+  }
+
+  // Capture photo
+  captureBtn.addEventListener('click', function() {
+      if (liveCameraView.style.display !== 'none') {
+          // Capture from live camera
+          const canvas = document.createElement('canvas');
+          canvas.width = cameraView.videoWidth;
+          canvas.height = cameraView.videoHeight;
+          canvas.getContext('2d').drawImage(cameraView, 0, 0);
+          
+          currentPhoto = canvas.toDataURL('image/jpeg', 0.9);
+          showCaptureEffect();
+      }
+      
+      // Handle the captured/uploaded photo based on context
+      if (currentModalType === 'add' || currentModalType === 'edit') {
+          const previewId = currentModalType === 'add' ? 'newImagePreview' : 'editImagePreview';
+          const preview = document.getElementById(previewId);
+          preview.src = currentPhoto;
+          preview.style.display = 'block';
+          closeCameraModal();
+      } else {
+          // Main camera functionality
+          savePhotoToDevice(currentPhoto);
+      }
+  });
+
+  // Upload photo
+  photoUpload.addEventListener('change', function(e) {
+      if (e.target.files && e.target.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(event) {
+              currentPhoto = event.target.result;
+              uploadPreview.src = currentPhoto;
+              uploadPreview.style.display = 'block';
+          }
+          
+          reader.readAsDataURL(e.target.files[0]);
+      }
+  });
+
+  // Close camera modal
+  function closeCameraModal() {
+      stopCamera();
+      cameraModal.style.display = 'none';
+  }
+
+  // Event listeners
+  openLiveCamera.addEventListener('click', showLiveCamera);
+  openUploadPhoto.addEventListener('click', showUploadPhoto);
+  closeCamera.addEventListener('click', closeCameraModal);
+  cameraModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+          closeCameraModal();
+      }
+  });
+
+  // Save photo to device (for main camera)
+  function savePhotoToDevice(imageData) {
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      link.download = `photo-${timestamp}.jpg`;
+      link.href = imageData;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      capturedPhotos.push(imageData);
+      localStorage.setItem('capturedPhotos', JSON.stringify(capturedPhotos));
+      console.log('Photo saved to device and local storage');
+  }
+
+  // Flash effect
+  function showCaptureEffect() {
+      const flash = document.createElement('div');
+      flash.style.position = 'fixed';
+      flash.style.top = '0';
+      flash.style.left = '0';
+      flash.style.width = '100%';
+      flash.style.height = '100%';
+      flash.style.backgroundColor = 'white';
+      flash.style.opacity = '0.8';
+      flash.style.zIndex = '2000';
+      flash.style.animation = 'fadeOut 0.5s forwards';
+      
+      document.body.appendChild(flash);
+      
+      setTimeout(() => {
+          document.body.removeChild(flash);
+      }, 500);
+  }
+
+  // Load saved photos
+  function loadSavedPhotos() {
+      const savedPhotos = localStorage.getItem('capturedPhotos');
+      if (savedPhotos) {
+          capturedPhotos = JSON.parse(savedPhotos);
+          console.log('Loaded saved photos:', capturedPhotos.length);
+      }
+  }
+  
+  loadSavedPhotos();
+});
+
+  
+
+// === تعريف دالة تسجيل الخروج ===
+function logoutUser() {
+    // تنفيذ عملية تسجيل الخروج
+    alert('You have been logged out!');
+    // إعادة التوجيه إلى صفحة تسجيل الدخول
+    window.location.href = 'home.html';
 }
 
-// --- 2. Data Fetching and Rendering ---
-async function loadDashboardData() {
-    try {
-        const stats = await getDashboardStats();
-        updateStatCard('total-attendance-value', stats.total_attendance);
-        updateStatCard('active-students-value', stats.active_students_count);
-        updateStatCard('pending-requests-value', stats.pending_requests_count);
-        updateNotificationBell(stats.pending_requests_count);
-        renderAttendanceHistory(stats.attendance_history);
-    } catch (error) {
-        console.error("Failed to load dashboard data:", error);
-    }
-}
 
-function updateStatCard(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        // ✅ هذا هو التصحيح: طريقة أكثر أمانًا وتوافقًا للتحقق من القيمة.
-        element.textContent = (value !== null && value !== undefined) ? value : '0';
-    }
-}
-
-function renderAttendanceHistory(history) {
-    const tableBody = document.getElementById('attendance-history-body');
-    if (!tableBody) return;
-    tableBody.innerHTML = '';
-    if (!history || history.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5">No recent attendance history.</td></tr>';
-        return;
-    }
-    history.forEach(log => {
-        const row = tableBody.insertRow();
-        row.innerHTML = `
-            <td>${log.student_name}</td>
-            <td>${log.section_name}</td>
-            <td>${log.time}</td>
-            <td>${log.instructor_name}</td>
-            <td>${log.level}</td>
-        `;
-    });
-}
-
-// --- 3. Event Listeners Setup ---
-function setupEventListeners() {
-    document.querySelector('.hamburger')?.addEventListener('click', () => document.querySelector('.sidebar')?.classList.toggle('active'));
-    document.querySelector('a[onclick="handleLogout()"]')?.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
-    document.getElementById('notification-bell')?.addEventListener('click', toggleNotificationsPanel);
-    document.getElementById('openCameraBtn')?.addEventListener('click', openCameraModal);
-    document.getElementById('closeCamera')?.addEventListener('click', closeCameraModal);
-    document.getElementById('cancelCameraBtn')?.addEventListener('click', closeCameraModal);
-    document.getElementById('recognizeBtn')?.addEventListener('click', handleFaceRecognition);
-    document.getElementById('photoUpload')?.addEventListener('change', e => {
-        const preview = document.getElementById('uploadPreview');
-        const file = e.target.files[0];
-        if (file && preview) {
-            const reader = new FileReader();
-            reader.onload = function(event) { preview.src = event.target.result; preview.style.display = 'block'; }
-            reader.readAsDataURL(file);
+    // === تهيئة الرسم البياني ===
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: 30 }, (_, i) => i + 1),
+            datasets: [{
+                label: 'Attendance',
+                data: [5, 10, 15, 12, 20, 18, 22, 25, 30, 10, 15, 20, 18, 16, 14, 20, 22, 8, 10, 12, 24, 28, 26, 25, 22, 18, 20, 21, 19, 20],
+                borderColor: '#4b7bec',
+                backgroundColor: 'rgba(75, 123, 236, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // التأكد من أن الرسم البياني لا يتسبب في التمرير
+            scales: {
+                x: {
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 7
+                    }
+                }
+            }
         }
     });
-}
 
-// --- 4. Notifications Logic ---
-function toggleNotificationsPanel(event) {
-    event.stopPropagation();
-    const panel = document.getElementById('notifications-panel');
-    const isVisible = panel.style.display === 'block';
-    if (isVisible) {
-        panel.style.display = 'none';
-    } else {
-        populateNotifications();
-        panel.style.display = 'block';
-    }
-}
-
-async function populateNotifications() {
-    const list = document.getElementById('notifications-list');
-    list.innerHTML = '<div class="notification-item">Loading...</div>';
-    try {
-        const requests = await getAdminNotifications();
-        const recognitionResult = JSON.parse(localStorage.getItem('lastRecognition'));
-        
-        list.innerHTML = '';
-        let hasNotifications = false;
-
-        if (recognitionResult) {
-            const item = document.createElement('div');
-            item.className = 'notification-item';
-            item.innerHTML = `<strong>Scan Result:</strong> ${recognitionResult.message}`;
-            list.appendChild(item);
-            localStorage.removeItem('lastRecognition');
-            hasNotifications = true;
-        }
-
-        requests.forEach(req => {
-            const item = document.createElement('div');
-            item.className = 'notification-item';
-            item.innerHTML = `New request from <strong>${req.student.username}</strong>. <a href="request_list.html">Review</a>`;
-            list.appendChild(item);
-            hasNotifications = true;
+    // === بحث الجدول ===
+    document.querySelector('.search-bar').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) 
+                ? '' 
+                : 'none';
         });
-        
-        if (!hasNotifications) {
-            list.innerHTML = '<div class="notification-item">No new notifications.</div>';
-        }
-
-        updateNotificationBell(requests.length);
-
-    } catch (error) {
-        list.innerHTML = '<div class="notification-item">Could not load notifications.</div>';
-    }
-}
-
-// --- 5. Camera and Face Recognition Logic ---
-function openCameraModal() {
-    document.getElementById('sessionIdInput').value = '';
-    document.getElementById('photoUpload').value = '';
-    const preview = document.getElementById('uploadPreview');
-    preview.src = '#';
-    preview.style.display = 'none';
-    document.getElementById('cameraModal')?.style.display = 'flex';
-}
-
-function closeCameraModal() {
-    document.getElementById('cameraModal')?.style.display = 'none';
-}
-
-async function handleFaceRecognition() {
-    const sessionId = document.getElementById('sessionIdInput').value;
-    const imageFile = document.getElementById('photoUpload').files[0];
-    if (!sessionId || !imageFile) {
-        return alert("Please provide both a Session ID and an image.");
-    }
-    const formData = new FormData();
-    formData.append('image', imageFile);
-    formData.append('session_id', sessionId);
-    const btn = document.getElementById('recognizeBtn');
-    btn.disabled = true;
-    btn.innerText = 'Processing...';
-    try {
-        const result = await recognizeFaces(formData);
-        localStorage.setItem('lastRecognition', JSON.stringify(result));
-        alert(`Success: ${result.message}`);
-        loadDashboardData();
-        closeCameraModal();
-    } catch (error) {
-        alert(`Recognition Failed: ${error.message}`);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = 'Send';
-    }
-}
-
-// --- 6. Chart and Logout ---
-function initializeChart() { /* ... same as before ... */ }
-async function handleLogout() { /* ... same as before ... */ }
-
+    });
+    

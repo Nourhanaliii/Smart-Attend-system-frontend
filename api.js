@@ -153,3 +153,10 @@ async function reviewAttendanceRequest(requestId, action) {
         body: { action: action }
     });
 }
+
+// --- 5. Calendar/Schedule Functions ---
+
+async function getWeeklySchedule(startDate) {
+    const url = `${API_BASE_URL}/api/courses/weekly-schedule/?week_start=${startDate}`;
+    return apiRequest(url, { method: 'GET' });
+}

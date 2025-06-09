@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendify Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for the bell icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -32,37 +31,27 @@
             <input type="text" class="search-bar" placeholder="Search...">
             <div class="user-section">
                 <button id="openCameraBtn" class="camera-button">Open Camera</button>
-                
-                <div class="notification-icon" id="notification-bell" onclick="window.location.href='request_list.html'">
+                <div class="notification-icon" id="notification-bell">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notification-count">0</span>
                 </div>
-                
                 <img src="user.png" alt="User" id="user-avatar-img">
+                
+                <!-- Notifications Panel -->
+                <div class="notifications-panel" id="notifications-panel">
+                    <div class="panel-header"><h4>Notifications</h4></div>
+                    <div class="panel-body" id="notifications-list">
+                        <p>No new notifications.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="dashboard-cards">
-            <div class="dashboard-card">
-                <p>Total Attendance</p><br>
-                <h2 id="total-attendance-value">...</h2>
-                <img src="Icon1.png" alt="Icon" class="icon">
-            </div>
-            <div class="dashboard-card">
-                <p>Active Students</p><br>
-                <h2 id="active-students-value">...</h2>
-                <img src="Icon2.png" alt="Icon" class="icon">
-            </div>
-            <div class="dashboard-card">
-                <p>Evaluation</p><br>
-                <h2 id="evaluation-value">85%</h2>
-                <img src="Icon3.png" alt="Icon" class="icon">
-            </div>
-            <div class="dashboard-card">
-                <p>Pending Requests</p><br>
-                <h2 id="pending-requests-value">...</h2>
-                <img src="Icon4.png" alt="Icon" class="icon">
-            </div>
+            <div class="dashboard-card"><p>Total Attendance</p><h2 id="total-attendance-value">...</h2><img src="Icon1.png" class="icon"></div>
+            <div class="dashboard-card"><p>Active Students</p><h2 id="active-students-value">...</h2><img src="Icon2.png" class="icon"></div>
+            <div class="dashboard-card"><p>Evaluation</p><h2 id="evaluation-value">85%</h2><img src="Icon3.png" class="icon"></div>
+            <div class="dashboard-card"><p>Pending Requests</p><h2 id="pending-requests-value">...</h2><img src="Icon4.png" class="icon"></div>
         </div>
 
         <div class="Chart">
@@ -73,25 +62,37 @@
         <div class="attendance-history">
             <h3>Attendance History</h3>
             <table>
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Section</th>
-                        <th>Time</th>
-                        <th>Instructor</th>
-                        <th>Level</th>
-                    </tr>
-                </thead>
-                <tbody id="attendance-history-body">
-                    <!-- This will be populated by JavaScript -->
-                </tbody>
+                <thead><tr><th>Student</th><th>Section</th><th>Time</th><th>Instructor</th><th>Level</th></tr></thead>
+                <tbody id="attendance-history-body"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Camera Modal (assuming its HTML is complex and remains the same) -->
+    <!-- Camera Modal with Form -->
     <div class="modal" id="cameraModal">
-        <!-- ... Camera Modal Content ... -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Take Attendance</h2>
+                <span id="closeCamera" class="close-btn">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="sessionIdInput">Session ID</label>
+                    <input type="text" id="sessionIdInput" placeholder="Enter the Session ID">
+                </div>
+                <div class="form-group">
+                    <label for="photoUpload" class="upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Upload Photo for Recognition</span>
+                    </label>
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+                </div>
+                <img id="uploadPreview" class="image-preview" style="display: none; max-width: 100%; border-radius: 8px; margin-top: 10px;" />
+            </div>
+            <div class="modal-buttons">
+                <button id="recognizeBtn" class="primary-btn capture-btn">Recognize & Mark Attendance</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

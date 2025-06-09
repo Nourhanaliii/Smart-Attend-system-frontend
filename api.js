@@ -130,3 +130,26 @@ async function updateCourse(courseId, formData) {
     const url = `${API_BASE_URL}/api/courses/courses/${courseId}/`;
     return apiFormDataRequest(url, 'PUT', formData);
 }
+
+// --- 5. Attendance Requests Functions ---
+
+/**
+ * Fetches all attendance requests.
+ */
+async function getAttendanceRequests() {
+    // ✅ هذا هو المسار الصحيح من ملف attendance/urls.py
+    const url = `${API_BASE_URL}/api/attendance/attendance-requests/`;
+    return apiRequest(url, { method: 'GET' });
+}
+
+/**
+ * Reviews an attendance request (approve or deny).
+ */
+async function reviewAttendanceRequest(requestId, action) {
+    // ✅ هذا هو المسار الصحيح من ملف attendance/urls.py
+    const url = `${API_BASE_URL}/api/attendance/review-request/${requestId}/`;
+    return apiRequest(url, {
+        method: 'POST',
+        body: { action: action }
+    });
+}

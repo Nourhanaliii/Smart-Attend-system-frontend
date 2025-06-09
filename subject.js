@@ -1,4 +1,4 @@
-// =================== subject.js (Final Version with All Fixes) ===================
+// =================== subject.js (Final Version with Edit and Image Upload) ===================
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthAndInit();
@@ -21,7 +21,6 @@ let courseIdToEdit = null;
 
 async function loadAndRenderCourses() {
     const courseGrid = document.getElementById('courseGrid');
-    if (!courseGrid) return;
     courseGrid.innerHTML = '<p>Loading courses...</p>';
     try {
         const courses = await getAllCourses();
@@ -101,10 +100,6 @@ async function handleAddCourse(event) {
     formData.append('instructor', document.getElementById('instructor').value);
     formData.append('day', document.getElementById('day').value);
     formData.append('time', document.getElementById('time').value);
-    
-    // ✅ Send an empty array for students to satisfy the serializer on creation
-    // formData.append('students', []);
-    
     const imageFile = document.getElementById('fileInput').files[0];
     if (imageFile) {
         formData.append('image', imageFile);
@@ -128,10 +123,6 @@ async function handleAddCourse(event) {
 async function handleUpdateCourse(event) {
     event.preventDefault();
     if (!courseIdToEdit) return;
-
-    const originalCourse = allCoursesData.find(c => c.id === courseIdToEdit);
-    if (!originalCourse) return;
-
     const formData = new FormData();
     formData.append('name', document.getElementById('editCourseName').value);
     formData.append('level', document.getElementById('editLevel').value);
@@ -140,17 +131,6 @@ async function handleUpdateCourse(event) {
     formData.append('instructor', document.getElementById('editInstructor').value);
     formData.append('day', document.getElementById('editDay').value);
     formData.append('time', document.getElementById('editTime').value);
-    
-    // ✅ Send back the current list of student IDs
-    if (originalCourse.students && originalCourse.students.length > 0) {
-        originalCourse.students.forEach(studentId => {
-            formData.append('students', studentId);
-        });
-    } else {
-        // If there are no students, send an empty value to satisfy the serializer
-        formData.append('students', '');
-    }
-    
     const imageFile = document.getElementById('editFileInput').files[0];
     if (imageFile) {
         formData.append('image', imageFile);
@@ -175,10 +155,7 @@ function openAddModal() {
     const form = document.getElementById('courseForm');
     if (form) form.reset();
     const preview = document.getElementById('preview');
-    if(preview) {
-        preview.src = '#';
-        preview.style.display = 'none';
-    }
+    if (preview) preview.style.display = 'none';
     document.getElementById('addModal').style.display = 'block';
 }
 
@@ -194,10 +171,7 @@ function openEditModal(courseId) {
     document.getElementById('editLevel').value = course.level;
     document.getElementById('editSessions').value = course.number_of_sessions;
     document.getElementById('editStartDate').value = course.start_date;
-    // We need to re-populate the dropdown and then set the value
-    populateInstructorsDropdown().then(() => {
-        document.getElementById('editInstructor').value = course.instructor;
-    });
+    document.getElementById('editInstructor').value = course.instructor;
     document.getElementById('editDay').value = course.day;
     document.getElementById('editTime').value = course.time;
     const preview = document.getElementById('editPreview');
@@ -205,7 +179,6 @@ function openEditModal(courseId) {
         preview.src = `${API_BASE_URL}${course.image}`;
         preview.style.display = 'block';
     } else {
-        preview.src = '#';
         preview.style.display = 'none';
     }
     document.getElementById('editModal').style.display = 'block';

@@ -6,7 +6,7 @@
  * تسجيل دخول المستخدم (Admin/Stuff)
  */
 async function login(email, password) {
-    const url = `${API_BASE_URL}/api/members/login/`;
+    const url = `${API_BASE_URL}/api/auth/login/`;
     // هذه الدالة تستخدم apiRequest الموجودة في ملف api.js
     return apiRequest(url, {
         method: 'POST',

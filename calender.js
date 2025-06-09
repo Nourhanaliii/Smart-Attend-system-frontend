@@ -49,15 +49,14 @@ function renderSchedule(scheduleData) {
         const timeCell = row.insertCell();
         timeCell.textContent = `${hour}:00`;
 
-        // Create 6 empty day cells
+        // Create 6 empty day cells for Sat, Sun, Mon, Tue, Wed, Thu
         for (let i = 0; i < 6; i++) {
             const dayCell = row.insertCell();
-            dayCell.dataset.dayIndex = i; // 0=Sat, 1=Sun, ...
         }
     }
 
-    // Map Django's weekday (0=Mon, 6=Sun) to our table column index (0=Sat, 1=Sun, ...)
-    const djangoToColumnMap = { 5: 0, 6: 1, 0: 2, 1: 3, 2: 4, 3: 5 }; // Sat, Sun, Mon...
+    // Map Django's weekday (0=Mon...6=Sun) to our table column index (0=Sat...5=Thu)
+    const djangoToColumnMap = { 5: 1, 6: 2, 0: 3, 1: 4, 2: 5, 3: 6 };
 
     for (const dayIndexDjango in scheduleData) {
         const columnIndex = djangoToColumnMap[dayIndexDjango];
@@ -65,10 +64,10 @@ function renderSchedule(scheduleData) {
 
         scheduleData[dayIndexDjango].forEach(session => {
             const sessionHour = parseInt(session.time.split(':')[0], 10);
-            const rowIndex = sessionHour - 8; // 8:00 is row 0, 9:00 is row 1...
+            const rowIndex = sessionHour - 8;
 
             if (rowIndex >= 0 && rowIndex < tableBody.rows.length) {
-                const cell = tableBody.rows[rowIndex].cells[columnIndex + 1]; // +1 to skip time column
+                const cell = tableBody.rows[rowIndex].cells[columnIndex];
                 
                 const sessionElement = document.createElement('div');
                 sessionElement.className = 'course-event';
@@ -76,7 +75,10 @@ function renderSchedule(scheduleData) {
                 sessionElement.title = `Instructor: ${session.instructor_name}`;
                 sessionElement.style.backgroundColor = getRandomColor(session.course_id);
                 
-                cell.appendChild(sessionElement);
+                // Clear the cell before adding a new session to prevent duplicates
+                if (cell) {
+                    cell.appendChild(sessionElement);
+                }
             }
         });
     }
@@ -90,8 +92,8 @@ function navigateWeek(direction) {
 
 function getStartOfWeek(date) {
     const d = new Date(date);
-    const dayOfWeek = d.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-    const diff = d.getDate() - dayOfWeek + (dayOfWeek === 6 ? 0 : -1); // Adjust to get Saturday
+    const dayOfWeek = d.getDay(); // 0=Sunday, ..., 6=Saturday
+    const diff = d.getDate() - dayOfWeek;
     return new Date(new Date(d.setDate(diff)).setHours(0, 0, 0, 0));
 }
 
@@ -115,6 +117,9 @@ function clearScheduleGrid() {
 function setupEventListeners() {
     document.getElementById('prev-week-btn')?.addEventListener('click', () => navigateWeek('prev'));
     document.getElementById('next-week-btn')?.addEventListener('click', () => navigateWeek('next'));
+    document.getElementById('addSessionBtn')?.addEventListener('click', openAddSessionModal);
+    document.getElementById('closeSessionModal')?.addEventListener('click', closeAddSessionModal);
+    document.getElementById('sessionForm')?.addEventListener('submit', handleAddSession);
     
     const hamburger = document.querySelector('.hamburger');
     const sidebar = document.querySelector('.sidebar');
@@ -128,15 +133,93 @@ function setupEventListeners() {
     }
 }
 
+async function openAddSessionModal() {
+    await populateCoursesDropdown();
+    await populateInstructorsDropdown();
+    const modal = document.getElementById('addSessionModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeAddSessionModal() {
+    const modal = document.getElementById('addSessionModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('sessionForm').reset();
+    }
+}
+
+async function handleAddSession(event) {
+    event.preventDefault();
+    const sessionData = {
+        course: document.getElementById('sessionCourse').value,
+        date: document.getElementById('sessionDate').value,
+        time: document.getElementById('sessionTime').value,
+        instructor: document.getElementById('sessionInstructor').value,
+    };
+    if (!sessionData.course || !sessionData.date || !sessionData.time || !sessionData.instructor) {
+        return alert("Please fill all fields.");
+    }
+    const btn = event.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
+    try {
+        await addSingleSession(sessionData);
+        alert('Session added successfully!');
+        closeAddSessionModal();
+        fetchAndRenderSchedule(currentWeekStartDate);
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Session';
+    }
+}
+
+async function populateCoursesDropdown() {
+    const courseSelect = document.getElementById('sessionCourse');
+    if (!courseSelect) return;
+    try {
+        const courses = await getAllCourses();
+        courseSelect.innerHTML = '<option value="">Select Course</option>';
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id;
+            option.textContent = `${course.name} (Level ${course.level})`;
+            courseSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Failed to load courses for dropdown:", error);
+    }
+}
+
+async function populateInstructorsDropdown() {
+    const instructorSelect = document.getElementById('sessionInstructor');
+    if (!instructorSelect) return;
+    try {
+        const staff = await getStaffMembers();
+        const instructors = staff.filter(m => m.role !== 'admin');
+        instructorSelect.innerHTML = '<option value="">Select Instructor</option>';
+        instructors.forEach(inst => {
+            const option = document.createElement('option');
+            option.value = inst.id;
+            option.textContent = `${inst.name} (${inst.role})`;
+            instructorSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Failed to load instructors for dropdown:", error);
+    }
+}
+
 function getRandomColor(seed) {
     const colors = ['#6c5ce7', '#00cec9', '#e84393', '#fdcb6e', '#2ecc71', '#9b59b6', '#e17055'];
-    // Use the course ID to get a consistent color for the same course
     return colors[seed % colors.length];
 }
 
 async function handleLogout() {
     try {
-        await logout(); // from api.js
+        await logout();
         localStorage.clear();
         window.location.href = 'home.html';
     } catch (error) {

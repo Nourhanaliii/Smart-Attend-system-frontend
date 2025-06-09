@@ -60,6 +60,36 @@
             </tbody>
         </table>
     </div>
+
+    <div class="modal" id="addSessionModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add New Session</h2>
+            <button class="close-button" id="closeSessionModal">×</button>
+        </div>
+        <form id="sessionForm">
+            <div class="form-group">
+                <label for="sessionCourse">Course</label>
+                <select id="sessionCourse" required></select>
+            </div>
+            <div class="form-group">
+                <label for="sessionDate">Date</label>
+                <input type="date" id="sessionDate" required>
+            </div>
+            <div class="form-group">
+                <label for="sessionTime">Time</label>
+                <input type="time" id="sessionTime" required>
+            </div>
+            <div class="form-group">
+                <label for="sessionInstructor">Instructor</label>
+                <select id="sessionInstructor" required></select>
+            </div>
+            <div class="modal-buttons">
+                <button type="submit" class="primary-btn">Save Session</button>
+            </div>
+        </form>
+    </div>
+</div>
     
     <script src="api.js" defer></script>
     <script src="calender.js" defer></script>

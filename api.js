@@ -160,3 +160,11 @@ async function getWeeklySchedule(startDate) {
     const url = `${API_BASE_URL}/api/courses/weekly-schedule/?week_start=${startDate}`;
     return apiRequest(url, { method: 'GET' });
 }
+
+async function addSingleSession(sessionData) {
+    const url = `${API_BASE_URL}/api/courses/add-single-session/`;
+    return apiRequest(url, {
+        method: 'POST',
+        body: sessionData,
+    });
+}

@@ -62,7 +62,7 @@
     </div>
 
     <div class="modal" id="addSessionModal">
-    <div class="modal-content">
+    <div class="modal-content scrollable-modal">
         <div class="modal-header">
             <h2>Add New Session</h2>
             <button class="close-button" id="closeSessionModal">×</button>
@@ -70,7 +70,7 @@
         <form id="sessionForm">
             <div class="form-group">
                 <label for="sessionCourse">Course</label>
-                <select id="sessionCourse" required></select>
+                <select id="sessionCourse" required class="styled-select"></select>
             </div>
             <div class="form-group">
                 <label for="sessionDate">Date</label>
@@ -82,10 +82,10 @@
             </div>
             <div class="form-group">
                 <label for="sessionInstructor">Instructor</label>
-                <select id="sessionInstructor" required></select>
+                <select id="sessionInstructor" required class="styled-select"></select>
             </div>
             <div class="modal-buttons">
-                <button type="submit" class="primary-btn">Save Session</button>
+                <button type="submit" class="primary-btn save-btn">Save Session</button>
             </div>
         </form>
     </div>

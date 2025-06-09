@@ -97,14 +97,24 @@ function getStartOfWeek(date) {
     return new Date(new Date(d.setDate(diff)).setHours(0, 0, 0, 0));
 }
 
+const PROJECT_START_DATE = new Date('2025-06-01');
+
 function renderWeekTitle(startDate) {
     const weekTitle = document.getElementById('week-title');
     if (!weekTitle) return;
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 5); // Saturday to Thursday
+    endDate.setDate(startDate.getDate() + 5);
     
+    // حساب الفرق بالمللي ثانية
+    const timeDiff = startDate.getTime() - PROJECT_START_DATE.getTime();
+    // تحويل الفرق إلى أيام ثم إلى أسابيع
+    const weekNumber = Math.floor(timeDiff / (1000 * 3600 * 24 * 7)) + 1;
+
     const options = { month: 'long', day: 'numeric' };
-    weekTitle.textContent = `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+    const dateRange = `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+    
+    // ✅ تحديث محتوى العنوان ليشمل رقم الأسبوع والتاريخ
+    weekTitle.innerHTML = `${dateRange} <br> <span class="week-number">Week ${weekNumber}</span>`;
 }
 
 function clearScheduleGrid() {

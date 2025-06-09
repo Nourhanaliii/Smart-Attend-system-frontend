@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Requests</title>
+    <link rel="stylesheet" href="request_list.css">
+</head>
+<body>
+    <div class="hamburger">☰</div>
+    <div class="sidebar">
+        <h1>Attendify</h1>
+        <ul>
+            <li><a href="dashboard.html"><img src="dashboard.png" alt="Dashboard">Dashboard</a></li>
+            <li><a href="request_list.html"><img src="request.png" alt="Requests">Requests List</a></li>
+            <li><a href="calender.html"><img src="calender.png" alt="Calendar">Calendar</a></li>
+            <li><a href="subject.html"><img src="subject.png" alt="Subjects">Subjects</a></li>
+            <li><a href="student.html"><img src="student.png" alt="Students">Students</a></li>
+            <li><a href="stuff.html"><img src="staff.png" alt="Staff">Stuff</a></li>
+        </ul>
+        <div class="sidebar-bottom">
+            <li><a href="settings.html"><img src="setting.png" alt="Settings">Settings</a></li>
+            <li><a href="#" onclick="handleLogout()"><img src="logout.png" alt="Logout">Logout</a></li>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <input type="text" class="search-bar" placeholder="Search student...">
+            <div class="user-section">
+                <button id="openCameraBtn" class="camera-button">Open Camera</button>
+                <img src="user.png" alt="User">
+            </div>
+        </div>
+        <div class="container">
+            <h1>Requests List</h1>
+            <div class="filters">
+                <!-- Filters can be connected later -->
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Level</th>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- This section will be populated by JavaScript -->
+                </tbody>
+            </table>
+            <div class="pagination"></div>
+        </div>
+    </div>
+
+    <script src="api.js" defer></script>
+    <script src="request_list.js" defer></script>
+</body>
+</html>

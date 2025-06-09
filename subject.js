@@ -1,29 +1,26 @@
-// =================== subject.js (النسخة النهائية المصححة) ===================
+// =================== subject.js (Correct and Final Version) ===================
 
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuthAndInit();
-});
-
-function checkAuthAndInit() {
+    // Auth check
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.is_staff) {
-        alert('You do not have permission to view this page. Redirecting...');
+        alert('You do not have permission to view this page.');
         window.location.href = 'home.html';
         return;
     }
     setupEventListeners();
     loadAndRenderCourses();
-}
+    populateInstructorsDropdown();
+});
 
 let allCoursesData = [];
 
 async function loadAndRenderCourses() {
     const courseGrid = document.getElementById('courseGrid');
     if (!courseGrid) return;
-    
     courseGrid.innerHTML = '<p>Loading courses...</p>';
     try {
-        const courses = await getAllCourses();
+        const courses = await getAllCourses(); // from api.js
         allCoursesData = courses;
         renderCourses(courses);
     } catch (error) {
@@ -56,25 +53,45 @@ function renderCourses(courseList) {
     });
 }
 
+async function populateInstructorsDropdown() {
+    const instructorSelect = document.getElementById('instructor');
+    if (!instructorSelect) return;
+    try {
+        const staffMembers = await getStaffMembers(); // from api.js
+        instructorSelect.innerHTML = '<option value="">Select Instructor</option>';
+        const instructors = staffMembers.filter(member => member.role !== 'admin');
+        instructors.forEach(instructor => {
+            const option = document.createElement('option');
+            option.value = instructor.id;
+            option.textContent = `${instructor.name} (${instructor.role})`;
+            instructorSelect.appendChild(option);
+        });
+    } catch (error) {
+        instructorSelect.innerHTML = '<option value="">Error loading instructors</option>';
+    }
+}
+
 function setupEventListeners() {
+    // Sidebar hamburger menu
     const hamburger = document.querySelector('.hamburger');
     const sidebar = document.querySelector('.sidebar');
     if (hamburger && sidebar) {
         hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
     }
+    // Logout link
     const logoutLink = document.querySelector('a[onclick="handleLogout()"]');
     if (logoutLink) {
-        logoutLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            handleLogout();
-        });
+        logoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
     }
+    // "Add New Course" button
     const addBtn = document.querySelector('.add-button');
     if(addBtn) addBtn.addEventListener('click', openModal);
+    // Modal close/cancel buttons
     const closeBtn = document.querySelector('#addModal .close-button');
     if(closeBtn) closeBtn.addEventListener('click', closeModal);
     const cancelBtn = document.querySelector('#addModal .cancel-btn');
     if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    // Add course form submission
     const courseForm = document.getElementById('courseForm');
     if(courseForm) courseForm.addEventListener('submit', handleAddCourse);
 }
@@ -97,7 +114,7 @@ async function handleAddCourse(event) {
     submitBtn.innerText = 'Adding...';
     submitBtn.disabled = true;
     try {
-        await addCourse(courseData);
+        await addCourse(courseData); // from api.js
         alert('Course added successfully!');
         closeModal();
         loadAndRenderCourses();
@@ -109,13 +126,16 @@ async function handleAddCourse(event) {
     }
 }
 
+// UI Helper Functions
 function openModal() {
     const form = document.getElementById('courseForm');
     if (form) form.reset();
     document.getElementById('addModal').style.display = 'block';
 }
 function closeModal() { document.getElementById('addModal').style.display = 'none'; }
-function openEditModal(id) { alert(`Edit for course ${id} not implemented yet.`); }
+function openEditModal(id) { alert(`Edit for course ${id} is not implemented yet.`); }
+
+// General Logout Function
 async function handleLogout() {
     try {
         await logout();

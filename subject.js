@@ -103,7 +103,7 @@ async function handleAddCourse(event) {
     formData.append('time', document.getElementById('time').value);
     
     // ✅ Send an empty array for students to satisfy the serializer on creation
-    formData.append('students', []);
+    // formData.append('students', []);
     
     const imageFile = document.getElementById('fileInput').files[0];
     if (imageFile) {

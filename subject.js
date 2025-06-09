@@ -1,4 +1,4 @@
-// =================== subject.js (Final Version with Edit and Image Upload) ===================
+// =================== subject.js (Final Corrected Version) ===================
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthAndInit();
@@ -155,7 +155,10 @@ function openAddModal() {
     const form = document.getElementById('courseForm');
     if (form) form.reset();
     const preview = document.getElementById('preview');
-    if (preview) preview.style.display = 'none';
+    if(preview) {
+        preview.src = '#';
+        preview.style.display = 'none';
+    }
     document.getElementById('addModal').style.display = 'block';
 }
 
@@ -179,6 +182,7 @@ function openEditModal(courseId) {
         preview.src = `${API_BASE_URL}${course.image}`;
         preview.style.display = 'block';
     } else {
+        preview.src = '#';
         preview.style.display = 'none';
     }
     document.getElementById('editModal').style.display = 'block';

@@ -1,7 +1,6 @@
-// =================== Request list.js ===================
+// =================== request_list.js ===================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Auth check
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.is_staff) {
         alert('You do not have permission to view this page.');
@@ -12,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAndRenderRequests();
 });
 
-// --- Data Fetching and Rendering ---
-
 async function loadAndRenderRequests() {
     const tableBody = document.querySelector('.container tbody');
     if (!tableBody) return;
@@ -23,7 +20,7 @@ async function loadAndRenderRequests() {
         const requests = await getAttendanceRequests(); // from api.js
         renderRequests(requests);
     } catch (error) {
-        tableBody.innerHTML = `<tr<td colspan="5" style="color:red;">Error: ${error.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${error.message}</td></tr>`;
     }
 }
 
@@ -38,9 +35,7 @@ function renderRequests(requestList) {
 
     requestList.forEach(req => {
         const row = document.createElement('tr');
-        row.id = `request-row-${req.id}`; // Add an ID to the row for easy removal/update
-        
-        // Format date for better readability
+        row.id = `request-row-${req.id}`;
         const formattedDate = new Date(req.created_at).toLocaleDateString();
 
         row.innerHTML = `
@@ -61,31 +56,26 @@ function renderRequests(requestList) {
     });
 }
 
-
-// --- Event Handling ---
-
 async function handleReviewRequest(requestId, action, buttonElement) {
-    // Disable both buttons in the same container to prevent double-clicking
     const buttons = buttonElement.parentElement.querySelectorAll('button');
     buttons.forEach(btn => btn.disabled = true);
     
     try {
         const response = await reviewAttendanceRequest(requestId, action);
-        alert(response.detail); // Show success message from backend
+        alert(response.detail);
 
-        // Update the UI dynamically
         const statusCell = buttonElement.closest('.status-cell');
-        const approvedStatus = `<span class="status-approved">approved</span>`;
-        const deniedStatus = `<span class="status-denied">denied</span>`;
-        statusCell.innerHTML = (action === 'approve') ? approvedStatus : deniedStatus;
+        const statusSpan = document.createElement('span');
+        statusSpan.className = `status-${action}`; // e.g., 'status-approved'
+        statusSpan.textContent = action;
+        statusCell.innerHTML = '';
+        statusCell.appendChild(statusSpan);
 
     } catch (error) {
         alert(`Error: ${error.message}`);
-        // Re-enable buttons if the request fails
         buttons.forEach(btn => btn.disabled = false);
     }
 }
-
 
 function setupEventListeners() {
     const hamburger = document.querySelector('.hamburger');
@@ -93,7 +83,6 @@ function setupEventListeners() {
     if (hamburger && sidebar) {
         hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
     }
-
     const logoutLink = document.querySelector('a[onclick="handleLogout()"]');
     if (logoutLink) {
         logoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });

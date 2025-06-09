@@ -57,7 +57,7 @@ async function apiFormDataRequest(url, formData) {
 }
 
 
-// --- 1. Authentication Functions ---
+// --- 1. Authentication Functions ----
 async function login(email, password) {
     // ✅ هذا هو التصحيح: استخدام المسار الصحيح الذي يعمل
     const url = `${API_BASE_URL}/api/auth/login/`; 

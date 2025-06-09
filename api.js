@@ -60,7 +60,7 @@ async function apiFormDataRequest(url, formData) {
 // --- 1. Authentication Functions ---
 async function login(email, password) {
     // ✅ هذا هو التصحيح: استخدام المسار الصحيح الذي يعمل
-    const url = `${API_BASE_URL}/api/members/login/`; 
+    const url = `${API_BASE_URL}/api/auth/login/`; 
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -78,7 +78,7 @@ async function login(email, password) {
 
 async function logout() {
     // ✅ التصحيح هنا أيضًا
-    const url = `${API_BASE_URL}/api/members/logout/`;
+    const url = `${API_BASE_URL}/api/auth/logout/`;
     return apiRequest(url, { method: 'GET' });
 }
 
@@ -107,12 +107,12 @@ async function updateStudent(studentId, data) {
 
 // --- 3. Staff / Members Functions ---
 async function getStaffMembers() {
-    const url = `${API_BASE_URL}/api/members/users/`;
+    const url = `${API_BASE_URL}/api/auth/users/`;
     return apiRequest(url, { method: 'GET' });
 }
 
 async function addStaffMember(formData) {
-    const url = `${API_BASE_URL}/api/members/add-new-member/`;
+    const url = `${API_BASE_URL}/api/auth/add-new-member/`;
     return apiFormDataRequest(url, formData);
 }
 

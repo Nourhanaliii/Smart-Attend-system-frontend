@@ -171,12 +171,7 @@ async function addSingleSession(sessionData) {
 
 // --- 6. Dashboard Functions ---
 
-/**
- * Fetches all stats for the main dashboard.
- * @returns {Promise<object>}
- */
 async function getDashboardStats() {
-    // تأكد من أن هذا المسار يطابق المسار في login_auth/urls.py
     const url = `${API_BASE_URL}/api/auth/dashboard-stats/`; 
     return apiRequest(url, { method: 'GET' });
 }

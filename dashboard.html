@@ -36,7 +36,10 @@
                     <span class="notification-badge" id="notification-count">0</span>
                 </div>
                 <img src="user.png" alt="User" id="user-avatar-img">
-                <div class="notifications-panel" id="notifications-panel"></div>
+                <div class="notifications-panel" id="notifications-panel">
+                    <div class="panel-header"><h4>Notifications</h4></div>
+                    <div class="panel-body" id="notifications-list"></div>
+                </div>
             </div>
         </div>
 
@@ -56,16 +59,36 @@
             <h3>Attendance History</h3>
             <table>
                 <thead><tr><th>Student</th><th>Section</th><th>Time</th><th>Instructor</th><th>Level</th></tr></thead>
-                <tbody id="attendance-history-body">
-                    <!-- JavaScript will populate this -->
-                </tbody>
+                <tbody id="attendance-history-body"></tbody>
             </table>
         </div>
     </div>
     
-    
     <div class="modal" id="cameraModal">
-        <!-- We will add content here later -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Take Attendance</h2>
+                <span id="closeCamera" class="close-btn">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="sessionIdInput">Session ID</label>
+                    <input type="text" id="sessionIdInput" placeholder="Enter the Session ID for attendance">
+                </div>
+                <div class="form-group">
+                    <label for="photoUpload" class="upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Upload Photo for Recognition</span>
+                    </label>
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+                </div>
+                <img id="uploadPreview" class="preview-image" style="display: none;" />
+            </div>
+            <div class="modal-buttons">
+                <button type="button" id="recognizeBtn" class="primary-btn capture-btn">Send</button>
+                <button type="button" id="cancelCameraBtn" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

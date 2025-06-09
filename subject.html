@@ -11,7 +11,7 @@
     <!-- زر الهامبرجر -->
     <div class="hamburger">☰</div>
 
-    <!-- ✅ القائمة الجانبية كاملة من الكود القديم -->
+    <!-- القائمة الجانبية -->
     <div class="sidebar">
         <h1>Attendify</h1>
         <ul>
@@ -24,14 +24,12 @@
         </ul>
         <div class="sidebar-bottom">
             <li><a href="settings.html"><img src="setting.png" alt="Settings">Settings</a></li>
-            <!-- ✅ تعديل مهم لاستدعاء دالة JS -->
             <li><a href="#" onclick="handleLogout()"><img src="logout.png" alt="Logout">Logout</a></li>
         </div>
     </div>
  
     <!-- المحتوى الرئيسي -->
     <div class="main-content">
-        <!-- ✅ الهيدر كامل من الكود القديم -->
         <div class="header">
             <input type="text" class="search-bar" placeholder="Search course...">
             <div class="user-section">
@@ -41,22 +39,22 @@
         </div>
 
         <div class="container">
-            <div class="header"> <!-- هذا هيدر داخلي للحاوية -->
+            <div class="header">
                 <h1>Courses</h1>
                 <button class="add-button">Add New Course</button>
             </div>
             <div class="course-grid" id="courseGrid">
-                <!-- 🔴 هذا القسم فارغ عن قصد، سيتم ملؤه بواسطة JavaScript -->
+                <!-- Courses are rendered here by JavaScript -->
             </div>
         </div>
     </div>
 
-    <!-- ✅ مودال الكاميرا كامل من الكود القديم -->
+    <!-- مودال الكاميرا -->
     <div class="modal" id="cameraModal">
-        <!-- ... كل محتوى مودال الكاميرا هنا ... -->
+        <!-- The content for the camera modal goes here -->
     </div>
 
-    <!-- ✅ نافذة إضافة كورس جديد (Add Course Modal) المعدلة -->
+    <!-- نافذة إضافة كورس جديد -->
     <div class="modal" id="addModal">
         <div class="modal-content scrollable-modal">
             <div class="modal-header">
@@ -64,7 +62,6 @@
                 <button class="close-button">×</button>
             </div>
             <form id="courseForm">
-                <!-- تم تبسيط الفورم ليتوافق مع الطلب بدون رفع صورة في البداية -->
                 <div class="form-group">
                     <label for="courseName">Course Name</label>
                     <input type="text" id="courseName" required>
@@ -90,10 +87,7 @@
                 <div class="form-group">
                     <label for="instructor">Instructor</label>
                     <select id="instructor" required>
-                        <option value="">Select Instructor</option>
-                        <!-- ملاحظة: يجب ملء هذه القائمة ديناميكياً ببيانات المحاضرين الحقيقيين -->
-                        <option value="3">Ghonemy (admin)</option>
-                        <option value="4">Test (lecturer)</option>
+                        <!-- Populated by JS -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -112,13 +106,6 @@
                     <label for="time">Time</label>
                     <input type="time" id="time" required>
                 </div>
-                <!-- سنعلق مؤقتًا كود رفع الصورة لتبسيط عملية الإضافة -->
-                <!-- 
-                <div class="form-group">
-                    <label>Course Image</label>
-                    <input type="file" id="fileInput" accept="image/*">
-                </div>
-                -->
                 <div class="modal-buttons">
                     <button type="submit">Add Course</button>
                     <button type="button" class="cancel-btn">Cancel</button>
@@ -127,12 +114,67 @@
         </div>
     </div>
     
-    <!-- Edit Modal (مستقبلي) -->
+    <!-- ✅ =============================================== -->
+    <!-- ✅ نافذة تعديل الكورس (Edit Course Modal) الجديدة -->
+    <!-- ✅ =============================================== -->
     <div class="modal" id="editModal">
-        <!-- ... -->
+        <div class="modal-content scrollable-modal">
+            <div class="modal-header">
+                <h2>Edit Course</h2>
+                <button class="close-button">×</button>
+            </div>
+            <form id="editCourseForm">
+                <div class="form-group">
+                    <label for="editCourseName">Course Name</label>
+                    <input type="text" id="editCourseName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLevel">Level</label>
+                    <select id="editLevel" required>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editSessions">Number of Sessions</label>
+                    <input type="number" id="editSessions" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStartDate">Start Date</label>
+                    <input type="date" id="editStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editInstructor">Instructor</label>
+                    <select id="editInstructor" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDay">Day</label>
+                    <select id="editDay" required>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+                        <option>Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTime">Time</label>
+                    <input type="time" id="editTime" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit">Update Course</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- ✅ ربط ملفات JS بالترتيب الصحيح -->
+    <!-- ربط ملفات JS بالترتيب الصحيح -->
     <script src="api.js" defer></script>
     <script src="subject.js" defer></script>
 </body>

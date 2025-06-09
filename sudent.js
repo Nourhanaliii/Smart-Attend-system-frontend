@@ -61,6 +61,9 @@ function setupEventListeners() {
     if (hamburger && sidebar) {
         hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
     }
+    // ✅ ربط فورم التعديل
+    const editForm = document.getElementById('editCourseForm');
+    if(editForm) editForm.addEventListener('submit', handleUpdateCourse);
     // Logout link
     const logoutLink = document.querySelector('a[onclick="handleLogout()"]');
     if (logoutLink) {
@@ -144,3 +147,4 @@ async function handleLogout() {
         alert("Logout failed.");
     }
 }
+

@@ -1,4 +1,4 @@
-// =================== api.js (The Final and Correct Version - All Functions Included) ===================
+// =================== api.js (The Final, Complete, and Correct Version) ===================
 
 const API_BASE_URL = 'https://django.nextapps.me';
 
@@ -22,7 +22,7 @@ async function apiRequest(url, options = {}) {
     }
     try {
         const response = await fetch(url, requestOptions);
-        if (response.status === 204) return null;
+        if (response.status === 204) return null; // For successful DELETE requests
         
         const responseData = await response.json();
         if (!response.ok) {
@@ -57,9 +57,8 @@ async function apiFormDataRequest(url, formData) {
 }
 
 
-// --- 1. Authentication Functions ----
+// --- 1. Authentication Functions ---
 async function login(email, password) {
-    // ✅ هذا هو التصحيح: استخدام المسار الصحيح الذي يعمل
     const url = `${API_BASE_URL}/api/auth/login/`; 
     try {
         const response = await fetch(url, {
@@ -77,7 +76,6 @@ async function login(email, password) {
 }
 
 async function logout() {
-    // ✅ التصحيح هنا أيضًا
     const url = `${API_BASE_URL}/api/auth/logout/`;
     return apiRequest(url, { method: 'GET' });
 }
@@ -126,4 +124,12 @@ async function getAllCourses() {
 async function addCourse(courseData) {
     const url = `${API_BASE_URL}/api/courses/courses/`;
     return apiRequest(url, { method: 'POST', body: courseData });
+}
+
+async function updateCourse(courseId, courseData) {
+    const url = `${API_BASE_URL}/api/courses/courses/${courseId}/`;
+    return apiRequest(url, {
+        method: 'PUT',
+        body: courseData,
+    });
 }

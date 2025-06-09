@@ -1,4 +1,4 @@
-// =================== subject.js (Final Version with Edit Logic) ===================
+// =================== subject.js (Final Version with Edit and Image Upload) ===================
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthAndInit();
@@ -17,9 +17,8 @@ function checkAuthAndInit() {
 }
 
 let allCoursesData = [];
-let courseIdToEdit = null; // To store the ID of the course being edited
+let courseIdToEdit = null;
 
-// --- Data Fetching and Rendering ---
 async function loadAndRenderCourses() {
     const courseGrid = document.getElementById('courseGrid');
     courseGrid.innerHTML = '<p>Loading courses...</p>';
@@ -28,7 +27,7 @@ async function loadAndRenderCourses() {
         allCoursesData = courses;
         renderCourses(courses);
     } catch (error) {
-        courseGrid.innerHTML = `<p style="color: red;">Error loading courses: ${error.message}</p>`;
+        courseGrid.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
     }
 }
 
@@ -58,21 +57,19 @@ function renderCourses(courseList) {
 }
 
 async function populateInstructorsDropdown() {
-    // This function can populate both add and edit modals
     const selectors = ['#instructor', '#editInstructor'];
     try {
         const staffMembers = await getStaffMembers();
         const instructors = staffMembers.filter(member => member.role !== 'admin');
-        
         selectors.forEach(selector => {
-            const selectElement = document.querySelector(selector);
-            if (!selectElement) return;
-            selectElement.innerHTML = '<option value="">Select Instructor</option>';
-            instructors.forEach(instructor => {
+            const select = document.querySelector(selector);
+            if (!select) return;
+            select.innerHTML = '<option value="">Select Instructor</option>';
+            instructors.forEach(inst => {
                 const option = document.createElement('option');
-                option.value = instructor.id;
-                option.textContent = `${instructor.name} (${instructor.role})`;
-                selectElement.appendChild(option);
+                option.value = inst.id;
+                option.textContent = `${inst.name} (${inst.role})`;
+                select.appendChild(option);
             });
         });
     } catch (error) {
@@ -80,37 +77,96 @@ async function populateInstructorsDropdown() {
     }
 }
 
-
-// --- Event Handling and Modals ---
 function setupEventListeners() {
-    // General UI
     document.querySelector('.hamburger')?.addEventListener('click', () => document.querySelector('.sidebar')?.classList.toggle('active'));
     document.querySelector('a[onclick="handleLogout()"]')?.addEventListener('click', e => { e.preventDefault(); handleLogout(); });
-
-    // Add Modal
     document.querySelector('.add-button')?.addEventListener('click', openAddModal);
     document.querySelector('#addModal .close-button')?.addEventListener('click', closeAddModal);
     document.querySelector('#addModal .cancel-btn')?.addEventListener('click', closeAddModal);
     document.getElementById('courseForm')?.addEventListener('submit', handleAddCourse);
-
-    // Edit Modal
     document.querySelector('#editModal .close-button')?.addEventListener('click', closeEditModal);
     document.getElementById('editCourseForm')?.addEventListener('submit', handleUpdateCourse);
+    document.getElementById('fileInput')?.addEventListener('change', e => previewImage(e, 'preview'));
+    document.getElementById('editFileInput')?.addEventListener('change', e => previewImage(e, 'editPreview'));
 }
 
-// Add Course Logic
 async function handleAddCourse(event) {
     event.preventDefault();
-    const courseData = { /* ... same as before ... */ };
-    // ... same logic as before ...
+    const formData = new FormData();
+    formData.append('name', document.getElementById('courseName').value);
+    formData.append('level', document.getElementById('level').value);
+    formData.append('number_of_sessions', document.getElementById('sessions').value);
+    formData.append('start_date', document.getElementById('startDate').value);
+    formData.append('instructor', document.getElementById('instructor').value);
+    formData.append('day', document.getElementById('day').value);
+    formData.append('time', document.getElementById('time').value);
+    const imageFile = document.getElementById('fileInput').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    const btn = event.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = 'Adding...';
+    try {
+        await addCourse(formData);
+        alert('Course added successfully!');
+        closeAddModal();
+        loadAndRenderCourses();
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Add Course';
+    }
 }
 
-// Edit Course Logic
+async function handleUpdateCourse(event) {
+    event.preventDefault();
+    if (!courseIdToEdit) return;
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editCourseName').value);
+    formData.append('level', document.getElementById('editLevel').value);
+    formData.append('number_of_sessions', document.getElementById('editSessions').value);
+    formData.append('start_date', document.getElementById('editStartDate').value);
+    formData.append('instructor', document.getElementById('editInstructor').value);
+    formData.append('day', document.getElementById('editDay').value);
+    formData.append('time', document.getElementById('editTime').value);
+    const imageFile = document.getElementById('editFileInput').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    const btn = event.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerText = 'Updating...';
+    try {
+        await updateCourse(courseIdToEdit, formData);
+        alert('Course updated successfully!');
+        closeEditModal();
+        loadAndRenderCourses();
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Update Course';
+    }
+}
+
+function openAddModal() {
+    const form = document.getElementById('courseForm');
+    if (form) form.reset();
+    const preview = document.getElementById('preview');
+    if (preview) preview.style.display = 'none';
+    document.getElementById('addModal').style.display = 'block';
+}
+
+function closeAddModal() {
+    document.getElementById('addModal').style.display = 'none';
+}
+
 function openEditModal(courseId) {
     courseIdToEdit = courseId;
     const course = allCoursesData.find(c => c.id === courseId);
     if (!course) return;
-
     document.getElementById('editCourseName').value = course.name;
     document.getElementById('editLevel').value = course.level;
     document.getElementById('editSessions').value = course.number_of_sessions;
@@ -118,45 +174,39 @@ function openEditModal(courseId) {
     document.getElementById('editInstructor').value = course.instructor;
     document.getElementById('editDay').value = course.day;
     document.getElementById('editTime').value = course.time;
-    
+    const preview = document.getElementById('editPreview');
+    if (course.image) {
+        preview.src = `${API_BASE_URL}${course.image}`;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
     document.getElementById('editModal').style.display = 'block';
 }
 
-async function handleUpdateCourse(event) {
-    event.preventDefault();
-    if (!courseIdToEdit) return;
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 
-    const updatedData = {
-        name: document.getElementById('editCourseName').value,
-        level: parseInt(document.getElementById('editLevel').value, 10),
-        number_of_sessions: parseInt(document.getElementById('editSessions').value, 10),
-        start_date: document.getElementById('editStartDate').value,
-        instructor: parseInt(document.getElementById('editInstructor').value, 10),
-        day: document.getElementById('editDay').value,
-        time: document.getElementById('editTime').value,
-        students: allCoursesData.find(c => c.id === courseIdToEdit).students // We need to send this back
-    };
-    
-    const btn = event.target.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerText = 'Updating...';
-    try {
-        await updateCourse(courseIdToEdit, updatedData);
-        alert('Course updated successfully!');
-        closeEditModal();
-        loadAndRenderCourses();
-    } catch (error) {
-        alert(`Failed to update course: ${error.message}`);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = 'Update Course';
+function previewImage(event, previewId) {
+    const preview = document.getElementById(previewId);
+    const file = event.target.files[0];
+    if (file && preview) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
     }
 }
 
-// UI Helpers
-function openAddModal() { /* ... */ }
-function closeAddModal() { /* ... */ }
-function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-
-// Logout
-async function handleLogout() { /* ... */ }
+async function handleLogout() {
+    try {
+        await logout();
+        localStorage.clear();
+        window.location.href = 'home.html';
+    } catch (error) {
+        alert("Logout failed.");
+    }
+}

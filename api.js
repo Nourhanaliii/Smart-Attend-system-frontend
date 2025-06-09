@@ -36,13 +36,13 @@ async function apiRequest(url, options = {}) {
     }
 }
 
-// For FormData (file uploads)
-async function apiFormDataRequest(url, formData) {
+// For FormData (file uploads) - Updated to accept method
+async function apiFormDataRequest(url, method, formData) {
     try {
         const csrfToken = localStorage.getItem('csrfToken');
         if (!csrfToken) throw new Error('CSRF token not found. Please log in again.');
         const response = await fetch(url, {
-            method: 'POST',
+            method: method, // Can be 'POST', 'PUT', 'PATCH'
             headers: { 'X-CSRFToken': csrfToken },
             credentials: 'include',
             body: formData,
@@ -51,7 +51,7 @@ async function apiFormDataRequest(url, formData) {
         if (!response.ok) throw new Error(Object.values(result).flat().join(', '));
         return result;
     } catch (error) {
-        console.error('API FormData Request Failed:', url, error);
+        console.error(`API FormData Request Failed for ${method} ${url}:`, error);
         throw error;
     }
 }
@@ -89,7 +89,7 @@ async function getAllStudents() {
 
 async function addStudent(formData) {
     const url = `${API_BASE_URL}/api/students/add-new-student/`;
-    return apiFormDataRequest(url, formData);
+    return apiFormDataRequest(url, 'POST', formData);
 }
 
 async function deleteStudent(studentId) {
@@ -111,7 +111,7 @@ async function getStaffMembers() {
 
 async function addStaffMember(formData) {
     const url = `${API_BASE_URL}/api/auth/add-new-member/`;
-    return apiFormDataRequest(url, formData);
+    return apiFormDataRequest(url, 'POST', formData);
 }
 
 
@@ -121,15 +121,12 @@ async function getAllCourses() {
     return apiRequest(url, { method: 'GET' });
 }
 
-async function addCourse(courseData) {
+async function addCourse(formData) {
     const url = `${API_BASE_URL}/api/courses/courses/`;
-    return apiRequest(url, { method: 'POST', body: courseData });
+    return apiFormDataRequest(url, 'POST', formData);
 }
 
-async function updateCourse(courseId, courseData) {
+async function updateCourse(courseId, formData) {
     const url = `${API_BASE_URL}/api/courses/courses/${courseId}/`;
-    return apiRequest(url, {
-        method: 'PUT',
-        body: courseData,
-    });
+    return apiFormDataRequest(url, 'PUT', formData);
 }

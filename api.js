@@ -175,3 +175,15 @@ async function getDashboardStats() {
     const url = `${API_BASE_URL}/api/auth/dashboard-stats/`; 
     return apiRequest(url, { method: 'GET' });
 }
+
+// --- Notifications Function (for Admin) ---
+async function getAdminNotifications() {
+    const url = `${API_BASE_URL}/api/notifications/admin-notifications/`;
+    return apiRequest(url, { method: 'GET' });
+}
+
+// --- Face Recognition Function ---
+async function recognizeFaces(formData) {
+    const url = `${API_BASE_URL}/api/face-recognition/recognize/`;
+    return apiFormDataRequest(url, 'POST', formData);
+}

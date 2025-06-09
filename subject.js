@@ -1,149 +1,127 @@
-// =================== api.js (The Final, Complete, and Correct Version) ===================
+// =================== subject.js (النسخة النهائية المصححة) ===================
 
-const API_BASE_URL = 'https://django.nextapps.me';
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthAndInit();
+});
 
-// --- General API Request Function ---
-async function apiRequest(url, options = {}) {
-    const csrfToken = localStorage.getItem('csrfToken');
-    const defaultOptions = {
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
-            ...options.headers
-        },
-    };
-    const requestOptions = { ...options, ...defaultOptions };
-    if (options.body) {
-        requestOptions.body = JSON.stringify(options.body);
+function checkAuthAndInit() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.is_staff) {
+        alert('You do not have permission to view this page. Redirecting...');
+        window.location.href = 'home.html';
+        return;
     }
+    setupEventListeners();
+    loadAndRenderCourses();
+}
+
+let allCoursesData = [];
+
+async function loadAndRenderCourses() {
+    const courseGrid = document.getElementById('courseGrid');
+    if (!courseGrid) return;
+    
+    courseGrid.innerHTML = '<p>Loading courses...</p>';
     try {
-        const response = await fetch(url, requestOptions);
-        if (response.status === 204) return null; // For successful DELETE requests
-        
-        const responseData = await response.json();
-        if (!response.ok) {
-            const errorMsg = Object.values(responseData).flat().join(', ');
-            throw new Error(errorMsg || 'An unknown API error occurred');
-        }
-        return responseData;
+        const courses = await getAllCourses();
+        allCoursesData = courses;
+        renderCourses(courses);
     } catch (error) {
-        console.error('API Request Failed:', url, error);
-        throw error;
+        courseGrid.innerHTML = `<p style="color: red;">Error loading courses: ${error.message}</p>`;
     }
 }
 
-// --- 1. Authentication Functions ---
-async function login(email, password) {
-    const url = `${API_BASE_URL}/api/members/login/`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Login failed');
-        }
-        return data;
-    } catch (error) {
-        console.error("Login API call failed:", error);
-        throw error;
+function renderCourses(courseList) {
+    const courseGrid = document.getElementById('courseGrid');
+    courseGrid.innerHTML = '';
+    if (!courseList || courseList.length === 0) {
+        courseGrid.innerHTML = '<p>No courses found.</p>';
+        return;
     }
-}
-
-async function logout() {
-    const url = `${API_BASE_URL}/api/members/logout/`;
-    return apiRequest(url, { method: 'GET' });
-}
-
-
-// --- 2. Student Functions ---
-async function getAllStudents() {
-    const url = `${API_BASE_URL}/api/students/`;
-    return apiRequest(url, { method: 'GET' });
-}
-
-async function addStudent(formData) {
-    const url = `${API_BASE_URL}/api/students/add-new-student/`;
-    try {
-        const csrfToken = localStorage.getItem('csrfToken');
-        if (!csrfToken) {
-            throw new Error('CSRF token not found in storage. Please log in again.');
-        }
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
-            credentials: 'include',
-            body: formData,
-        });
-        const result = await response.json();
-        if (!response.ok) {
-            const errorMsg = Object.values(result).flat().join(', ');
-            throw new Error(errorMsg || 'Failed to add student.');
-        }
-        return result;
-    } catch (error) {
-        console.error('Add student API call failed:', error);
-        throw error;
-    }
-}
-
-async function deleteStudent(studentId) {
-    const url = `${API_BASE_URL}/api/students/${studentId}/delete/`;
-    return apiRequest(url, { method: 'DELETE' });
-}
-
-async function updateStudent(studentId, data) {
-    const url = `${API_BASE_URL}/api/students/update/${studentId}/`;
-    return apiRequest(url, { method: 'PATCH', body: data });
-}
-
-
-// --- 3. Staff / Members Functions ---
-async function getStaffMembers() {
-    const url = `${API_BASE_URL}/api/members/users/`;
-    return apiRequest(url, { method: 'GET' });
-}
-
-async function addStaffMember(formData) {
-    const url = `${API_BASE_URL}/api/members/add-new-member/`;
-    try {
-        const csrfToken = localStorage.getItem('csrfToken');
-        if (!csrfToken) {
-            throw new Error('CSRF token not found in storage. Please log in again.');
-        }
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
-            credentials: 'include',
-            body: formData,
-        });
-        const result = await response.json();
-        if (!response.ok) {
-            const errorMsg = Object.values(result).flat().join(', ');
-            throw new Error(errorMsg || 'Failed to add member.');
-        }
-        return result;
-    } catch (error) {
-        console.error('Add Staff Member API call failed:', error);
-        throw error;
-    }
-}
-
-
-// --- 4. Courses Functions ---
-async function getAllCourses() {
-    const url = `${API_BASE_URL}/api/courses/courses/`;
-    return apiRequest(url, { method: 'GET' });
-}
-
-async function addCourse(courseData) {
-    const url = `${API_BASE_URL}/api/courses/courses/`;
-    return apiRequest(url, {
-        method: 'POST',
-        body: courseData,
+    courseList.forEach(course => {
+        const courseCard = document.createElement('div');
+        courseCard.className = 'course-card';
+        const imageUrl = course.image ? `${API_BASE_URL}${course.image}` : 'https://via.placeholder.com/300x150?text=No+Image';
+        courseCard.innerHTML = `
+            <div class="level-badge">${course.level}</div>
+            <img src="${imageUrl}" alt="${course.name}">
+            <h3>${course.name}</h3>
+            <div class="course-details">
+                <p><i class="fas fa-chalkboard-teacher"></i>Instructor ID: ${course.instructor}</p>
+                <p><i class="far fa-calendar-alt"></i>Schedule: ${course.day} at ${course.time.substring(0, 5)}</p>
+            </div>
+            <button class="edit-btn" onclick="openEditModal(${course.id})">Edit</button>
+        `;
+        courseGrid.appendChild(courseCard);
     });
+}
+
+function setupEventListeners() {
+    const hamburger = document.querySelector('.hamburger');
+    const sidebar = document.querySelector('.sidebar');
+    if (hamburger && sidebar) {
+        hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
+    }
+    const logoutLink = document.querySelector('a[onclick="handleLogout()"]');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
+    const addBtn = document.querySelector('.add-button');
+    if(addBtn) addBtn.addEventListener('click', openModal);
+    const closeBtn = document.querySelector('#addModal .close-button');
+    if(closeBtn) closeBtn.addEventListener('click', closeModal);
+    const cancelBtn = document.querySelector('#addModal .cancel-btn');
+    if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    const courseForm = document.getElementById('courseForm');
+    if(courseForm) courseForm.addEventListener('submit', handleAddCourse);
+}
+
+async function handleAddCourse(event) {
+    event.preventDefault();
+    const courseData = {
+        name: document.getElementById('courseName').value,
+        level: parseInt(document.getElementById('level').value, 10),
+        number_of_sessions: parseInt(document.getElementById('sessions').value, 10),
+        start_date: document.getElementById('startDate').value,
+        instructor: parseInt(document.getElementById('instructor').value, 10),
+        day: document.getElementById('day').value,
+        time: document.getElementById('time').value,
+    };
+    if (Object.values(courseData).some(val => !val && val !== 0)) {
+        return alert("Please fill all fields.");
+    }
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    submitBtn.innerText = 'Adding...';
+    submitBtn.disabled = true;
+    try {
+        await addCourse(courseData);
+        alert('Course added successfully!');
+        closeModal();
+        loadAndRenderCourses();
+    } catch (error) {
+        alert(`Failed to add course: ${error.message}`);
+    } finally {
+        submitBtn.innerText = 'Add Course';
+        submitBtn.disabled = false;
+    }
+}
+
+function openModal() {
+    const form = document.getElementById('courseForm');
+    if (form) form.reset();
+    document.getElementById('addModal').style.display = 'block';
+}
+function closeModal() { document.getElementById('addModal').style.display = 'none'; }
+function openEditModal(id) { alert(`Edit for course ${id} not implemented yet.`); }
+async function handleLogout() {
+    try {
+        await logout();
+        localStorage.clear();
+        window.location.href = 'home.html';
+    } catch (error) {
+        alert("Logout failed.");
+    }
 }

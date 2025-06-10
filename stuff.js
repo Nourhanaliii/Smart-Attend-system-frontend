@@ -27,7 +27,6 @@ async function loadAndRenderStaff() {
         cardsContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
     }
 }
-
 function renderStaffCards(staffList) {
     const cardsContainer = document.querySelector('.cards');
     cardsContainer.innerHTML = '';
@@ -39,10 +38,13 @@ function renderStaffCards(staffList) {
     }
     
     staffList.forEach(member => {
+        // ✅ بناء رابط الصورة الكامل
+        const avatarUrl = member.avatar 
+            ? `${API_BASE_URL}${member.avatar}` 
+            : 'https://via.placeholder.com/100?text=N/A';
+        
         const card = document.createElement('div');
         card.className = 'card';
-        const avatarUrl = member.avatar ? `${API_BASE_URL}${member.avatar}` : 'https://via.placeholder.com/100?text=N/A';
-        
         card.innerHTML = `
             <img src="${avatarUrl}" alt="${member.name}">
             <h3>${member.name}</h3>

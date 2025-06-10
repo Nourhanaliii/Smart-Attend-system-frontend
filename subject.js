@@ -41,7 +41,12 @@ function renderCourses(courseList) {
     courseList.forEach(course => {
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';
-        const imageUrl = course.image ? `${API_BASE_URL}${course.image}` : 'https://via.placeholder.com/300x150?text=No+Image';
+        
+        // ✅ التأكد من بناء رابط الصورة الكامل
+        const imageUrl = course.image 
+            ? `${API_BASE_URL}${course.image}` 
+            : 'https://via.placeholder.com/300x150?text=No+Image';
+            
         courseCard.innerHTML = `
             <div class="level-badge">${course.level}</div>
             <img src="${imageUrl}" alt="${course.name}">
@@ -54,7 +59,7 @@ function renderCourses(courseList) {
         `;
         courseGrid.appendChild(courseCard);
     });
-} 
+}
 
 async function populateInstructorsDropdown() {
     const selectors = ['#instructor', '#editInstructor'];

@@ -313,6 +313,32 @@ async function addStaffMember(formData) {
     return apiFormDataRequest(url, 'POST', formData);
 }
 
+async function updateStaffMember(userId, formData) {
+    const url = `${API_BASE_URL}/api/auth/users/${userId}/update/`;
+    // PATCH method for partial updates with FormData
+    try {
+        const csrfToken = localStorage.getItem('csrfToken');
+        if (!csrfToken) throw new Error('CSRF token not found.');
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': csrfToken },
+            credentials: 'include',
+            body: formData
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(Object.values(result).flat().join(', '));
+        return result;
+    } catch (error) {
+        console.error('Update Staff Member failed:', error);
+        throw error;
+    }
+}
+
+async function deleteStaffMember(userId) {
+    const url = `${API_BASE_URL}/api/auth/users/${userId}/delete/`;
+    return apiRequest(url, { method: 'DELETE' });
+}
+
 
 // --- 4. Courses Functions ---
 async function getAllCourses() {

@@ -83,6 +83,16 @@ function setupEventListeners() {
     saveBtn.addEventListener('click', handleSaveMember);
     document.getElementById('avatarInput').addEventListener('change', handleImagePreview);
     document.querySelector('.search-bar').addEventListener('input', handleSearch);
+
+    // ✅ ربط أزرار نافذة التعديل
+    document.getElementById('saveEditBtn')?.addEventListener('click', handleUpdateMember);
+    document.getElementById('cancelEditBtn')?.addEventListener('click', closeEditModal);
+    document.getElementById('editAvatarInput')?.addEventListener('change', e => {
+        const reader = new FileReader();
+        const preview = document.getElementById('edit-avatar-preview');
+        reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(e.target.files[0]);
+    });
 }
 
 async function handleSaveMember() {
@@ -147,6 +157,61 @@ function handleSearch(event) {
         member.email.toLowerCase().includes(searchTerm)
     );
     renderStaffCards(filteredStaff);
+}
+
+function openEditModal(memberId) {
+    memberIdToEdit = memberId;
+    const member = allStaffData.find(m => m.id === memberId);
+    if (!member) return;
+
+    document.getElementById('editMemberName').value = member.name;
+    document.getElementById('editMemberRole').value = member.role;
+    const preview = document.getElementById('edit-avatar-preview');
+    if (member.avatar) {
+        preview.src = member.avatar;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+    
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+async function handleUpdateMember() {
+    if (!memberIdToEdit) return;
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editMemberName').value);
+    formData.append('role', document.getElementById('editMemberRole').value);
+    const avatarFile = document.getElementById('editAvatarInput').files[0];
+    if (avatarFile) {
+        formData.append('avatar', avatarFile);
+    }
+    
+    try {
+        await updateStaffMember(memberIdToEdit, formData);
+        alert('Member updated successfully!');
+        closeEditModal();
+        loadAndRenderStaff();
+    } catch (error) {
+        alert(`Failed to update member: ${error.message}`);
+    }
+}
+
+async function handleDeleteMember(memberId) {
+    if (confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
+        try {
+            await deleteStaffMember(memberId);
+            alert('Member deleted successfully.');
+            loadAndRenderStaff();
+        } catch (error) {
+            alert(`Failed to delete member: ${error.message}`);
+        }
+    }
 }
 
 // دالة تسجيل الخروج العامة

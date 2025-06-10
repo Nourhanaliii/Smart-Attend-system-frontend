@@ -54,7 +54,7 @@ function renderCourses(courseList) {
         `;
         courseGrid.appendChild(courseCard);
     });
-}
+} 
 
 async function populateInstructorsDropdown() {
     const selectors = ['#instructor', '#editInstructor'];

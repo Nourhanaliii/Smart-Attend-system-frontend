@@ -1,4 +1,4 @@
-// Initialize notification system
+ // Initialize notification system
         const initNotifications = () => {
             const notificationBell = document.querySelector('.notification-bell');
             const notificationPopup = document.getElementById('notificationPopup');
@@ -46,7 +46,7 @@
                     readNotifications.push(id);
                     localStorage.setItem('readNotifications', JSON.stringify(readNotifications));
                     
-                    const notificationItem = document.querySelector(.notification-item[data-id="${id}"]);
+                    const notificationItem = document.querySelector(`.notification-item[data-id="${id}"]`);
                     if (notificationItem) {
                         notificationItem.classList.remove('unread');
                         notificationItem.classList.add('read');
@@ -307,4 +307,4 @@
             initCameraModal();
             initChart();
             initSearch();
-        });
+        });

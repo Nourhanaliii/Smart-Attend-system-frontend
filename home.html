@@ -3,98 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendify Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="dashboard.css">
+    <title>Attendfiy</title>
+    <link rel="stylesheet" href="styles home.css">
 </head>
 <body>
-    <div class="hamburger">☰</div>
-    <div class="sidebar">
-        <h1>Attendify</h1>
-        <ul>
-            <li><a href="dashboard.html"><img src="dashboard.png" alt="Dashboard">Dashboard</a></li>
-            <li><a href="request_list.html"><img src="request.png" alt="Requests">Requests List</a></li>
-            <li><a href="calender.html"><img src="calender.png" alt="Calendar">Calendar</a></li>
-            <li><a href="subject.html"><img src="subject.png" alt="Subjects">Subjects</a></li>
-            <li><a href="student.html"><img src="student.png" alt="Students">Students</a></li>
-            <li><a href="stuff.html"><img src="staff.png" alt="Staff">Stuff</a></li>
-        </ul>
-        <div class="sidebar-bottom">
-            <li><a href="settings.html"><img src="setting.png" alt="Settings">Settings</a></li>
-            <li><a href="#" onclick="handleLogout()"><img src="logout.png" alt="Logout">Logout</a></li>
+
+<header>
+    <div class="navbar">
+        <div class="logo">
+            <img src="uim_calender.png" alt="Calendar Icon" class="calendar-icon">
+            <h1>Attendfiy</h1>
         </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about us.html">About Us</a></li>
+                <li><a href="sev.html">Our Services</a></li>
+                <li><a href="contact us.html">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="main">
+    <div class="content">
+        <h2>Effortlessly Manage Attendance and Schedules for Your Sections</h2>
+        <p>Optimize Your Teaching Experience with Easy Attendance Management.</p>
+        <button class="login-button" id="loginButton">Login</button>
+    </div>
+    <div class="image">
+        <img src="rafiki.jpg" alt="Calendar Illustration">
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <input type="text" class="search-bar" placeholder="Search student...">
-            <div class="user-section">
-                <div class="notification-bell" id="notification-bell" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-count" id="notification-count">0</span>
-                </div>
-                <div class="notification-popup" id="notificationPopup">
-                    <div class="notification-header">
-                        <h3>Notifications</h3>
-                        <button class="close-notifications" id="closeNotifications">×</button>
-                    </div>
-                    <ul class="notification-list" id="notificationList"></ul>
-                </div>
-                <button id="openCameraBtn" class="camera-button"><i class="fas fa-camera"></i> Open Camera</button>
-                <img src="user.png" alt="User" id="user-avatar-img">
-            </div>
-        </div>
 
-        <div class="dashboard-cards">
-            <div class="dashboard-card"><p>Total Attendance</p><h2 id="total-attendance-value">...</h2><img src="Icon1.png" class="icon"></div>
-            <div class="dashboard-card"><p>Active Students</p><h2 id="active-students-value">...</h2><img src="Icon2.png" class="icon"></div>
-            <div class="dashboard-card"><p>Evaluation</p><h2 id="evaluation-value">85%</h2><img src="Icon3.png" class="icon"></div>
-            <div class="dashboard-card"><p>Pending Requests</p><h2 id="pending-requests-value">...</h2><img src="Icon4.png" class="icon"></div>
-        </div>
-
-        <div class="Chart">
-            <h3>Attendance Scheduling Details</h3>
-            <canvas id="attendanceChart"></canvas>
-        </div>
-
-        <div class="attendance-history">
-            <h3>Attendance History</h3>
-            <table>
-                <thead><tr><th>Student</th><th>Section</th><th>Time</th><th>Instructor</th><th>Level</th></tr></thead>
-                <tbody id="attendance-history-body"></tbody>
-            </table>
-        </div>
-    </div> 
-    
-    <div class="modal" id="cameraModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Camera</h2>
-                <span id="closeCamera" class="close-btn">×</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group"><label for="sessionIdInput">Session ID</label><input type="text" id="sessionIdInput" placeholder="Enter Session ID"></div>
-                <div class="camera-options">
-                    <button id="openLiveCamera" class="camera-option-btn active"><i class="fas fa-video"></i> Live Camera</button>
-                    <button id="openUploadPhoto" class="camera-option-btn"><i class="fas fa-upload"></i> Upload Photo</button>
-                </div>
-                <div class="video-container" id="liveCameraView"><video id="cameraView" autoplay playsinline></video></div>
-                <div class="upload-container" id="uploadPhotoView" style="display: none;">
-                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
-                    <label for="photoUpload" class="upload-label"><i class="fas fa-cloud-upload-alt"></i><span>Select Photo</span></label>
-                    <img id="uploadPreview" class="image-preview" style="display: none;" />
-                </div>
-            </div>
-            <div class="modal-buttons camera-controls">
-                <button id="captureBtn" class="capture-btn">Send</button>
-                <button type="button" class="cancel-btn" id="cancelCameraBtn">Cancel</button>
-            </div>
-        </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="login-popup" id="loginPopup">
+        <img src="popup.png" alt="Login Illustration">
+        <span class="close-popup-btn" id="closePopupBtn">×</span>
+        <input type="email" placeholder="Enter your email" id="email-input">
+        <input type="password" placeholder="Enter your password" id="password-input">
+        <button id="submitLoginBtn">Login</button>
     </div>
+</section>
+    <p>Download the app and attend now</p>
+    <div class="download-buttons">
+        <img src="googleplay.png" alt="Google Play">
+        <img src="Group.png" alt="App Store">
+    </div>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="api.js" defer></script>
-    <script src="dashboard.js" defer></script>
+<!-- 🔴 انتبه للترتيب والأسماء هنا -->
+<script src="api.js" defer></script>
+<script src="auth.js" defer></script> 
+
 </body>
 </html>

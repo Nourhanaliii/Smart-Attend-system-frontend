@@ -38,7 +38,6 @@ function renderCourses(courseList) {
         courseGrid.innerHTML = '<p>No courses found.</p>';
         return;
     }
-    
     courseList.forEach(course => {
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';

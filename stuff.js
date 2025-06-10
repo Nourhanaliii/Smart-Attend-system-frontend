@@ -53,7 +53,6 @@ function renderStaffCards(staffList) {
         cardsContainer.innerHTML = '<p>No staff members found.</p>';
         return;
     }
-    
 
       // جلب بيانات المستخدم المسجل دخوله لمعرفة من هو الأدمن الحالي
     const currentUser = JSON.parse(localStorage.getItem('user'))
@@ -67,18 +66,9 @@ function renderStaffCards(staffList) {
             <p>${member.role}</p>
             <p>${member.email}</p>
         `;
-
-        card.innerHTML = `
-            <img src="${member.avatar || 'https://via.placeholder.com/100'}" alt="${member.name}">
-            <h3>${member.name}</h3>
-            <p>${member.role}</p>
-            <p>${member.email}</p>
-            <div class="card-actions">
-                <button class="edit-btn" onclick="openEditModal(${member.id})">Edit</button>
-                <button class="delete-btn" onclick="handleDeleteMember(${member.id})">Delete</button>
-            </div>
-        `;
         cardsContainer.appendChild(card);
+
+        
     });
 
 }

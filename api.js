@@ -169,21 +169,30 @@ async function addSingleSession(sessionData) {
     });
 }
 
-// --- 6. Dashboard Functions ---
+// Face Recognition API
+async function recognizeFaces(imageFile, sessionId) {
+    const url = `${API_BASE_URL}/api/face-recognition/recognize/`;
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('session_id', sessionId);
+    
+    try {
+        const response = await apiFormDataRequest(url, 'POST', formData);
+        return response;
+    } catch (error) {
+        console.error("Face recognition failed:", error);
+        throw error;
+    }
+}
 
+// Dashboard Stats API
 async function getDashboardStats() {
-    const url = `${API_BASE_URL}/api/auth/dashboard-stats/`; 
+    const url = `${API_BASE_URL}/api/auth/dashboard-stats/`;
     return apiRequest(url, { method: 'GET' });
 }
 
-// --- 5. Notifications Function (for Admin) ---
+// Admin Notifications API
 async function getAdminNotifications() {
     const url = `${API_BASE_URL}/api/notifications/admin-notifications/`;
     return apiRequest(url, { method: 'GET' });
-}
-
-// --- Face Recognition Function ---
-async function recognizeFaces(formData) {
-    const url = `${API_BASE_URL}/api/face-recognition/recognize/`;
-    return apiFormDataRequest(url, 'POST', formData);
 }

@@ -38,15 +38,15 @@ function renderStaffCards(staffList) {
     }
     
     staffList.forEach(member => {
-        // ✅ بناء رابط الصورة الكامل
+        // ✅ التعديل الرئيسي هنا - بناء URL الصورة بشكل صحيح
         const avatarUrl = member.avatar 
-            ? `${API_BASE_URL}${member.avatar}` 
+            ? `${member.avatar.startsWith('http') ? '' : API_BASE_URL}${member.avatar}`
             : 'https://via.placeholder.com/100?text=N/A';
         
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <img src="${avatarUrl}" alt="${member.name}">
+            <img src="${avatarUrl}" alt="${member.name}" onerror="this.src='https://via.placeholder.com/100?text=Error'">
             <h3>${member.name}</h3>
             <p class="role">${member.role}</p>
             <p class="email">${member.email}</p>

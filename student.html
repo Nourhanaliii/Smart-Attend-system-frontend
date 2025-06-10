@@ -233,6 +233,27 @@
                 </div>
             </div>
         </div>
+        </div>
+        <div class="modal-body">
+        <div class="form-group">
+            <label for="editStudentImage" id="editUploadLabel">Change Photo</label>
+            <input type="file" id="editStudentImage" accept="image/*" onchange="previewEditImage(event)" style="display: none;">
+            <img id="editImagePreview" src="" style="display: none; width: 150px; height: 150px; object-fit: cover; border-radius: 5px;">
+        </div>
+        
+        <input type="text" id="editStudentName" placeholder="Name">
+        <input type="text" id="editStudentID" placeholder="ID" readonly>
+        <input type="text" id="editStudentPassword" placeholder="New Password (leave empty to keep current)">
+        
+        <select id="editStudentLevel" class="styled-select">
+            <option value="" disabled selected>Select Level</option>
+            <option value="1">Level 1</option>
+            <option value="2">Level 2</option>
+            <option value="3">Level 3</option>
+            <option value="4">Level 4</option>
+        </select>
+        
+        <input type="number" id="editStudentAttendance" placeholder="Attendance (1-5)" min="1" max="5">
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

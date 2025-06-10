@@ -176,7 +176,7 @@ async function getDashboardStats() {
     return apiRequest(url, { method: 'GET' });
 }
 
-// --- Notifications Function (for Admin) ---
+// --- 5. Notifications Function (for Admin) ---
 async function getAdminNotifications() {
     const url = `${API_BASE_URL}/api/notifications/admin-notifications/`;
     return apiRequest(url, { method: 'GET' });

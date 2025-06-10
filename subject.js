@@ -38,6 +38,10 @@ function renderCourses(courseList) {
         courseGrid.innerHTML = '<p>No courses found.</p>';
         return;
     }
+    const imageUrl = course.image 
+            ? `${API_BASE_URL}${course.image}` 
+            : 'https://via.placeholder.com/300x150?text=No+Image';
+            
     courseList.forEach(course => {
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';

@@ -53,6 +53,9 @@ function renderStaffCards(staffList) {
         cardsContainer.innerHTML = '<p>No staff members found.</p>';
         return;
     }
+    const avatarUrl = member.avatar 
+            ? `${API_BASE_URL}${member.avatar}` 
+            : 'https://via.placeholder.com/100';
 
       // جلب بيانات المستخدم المسجل دخوله لمعرفة من هو الأدمن الحالي
     const currentUser = JSON.parse(localStorage.getItem('user'))

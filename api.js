@@ -315,7 +315,6 @@ async function addStaffMember(formData) {
 
 async function updateStaffMember(userId, formData) {
     const url = `${API_BASE_URL}/api/auth/users/${userId}/update/`;
-    // PATCH method for partial updates with FormData
     return apiFormDataRequest(url, 'PATCH', formData);
 }
 

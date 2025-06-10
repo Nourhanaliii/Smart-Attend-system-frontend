@@ -53,25 +53,27 @@ function renderStaffCards(staffList) {
         cardsContainer.innerHTML = '<p>No staff members found.</p>';
         return;
     }
-    const avatarUrl = member.avatar 
-            ? `${API_BASE_URL}${member.avatar}` 
-            : 'https://via.placeholder.com/100';
+    
 
       // جلب بيانات المستخدم المسجل دخوله لمعرفة من هو الأدمن الحالي
     const currentUser = JSON.parse(localStorage.getItem('user'))
     
     staffList.forEach(member => {
+        // لا نعرض كارت الأدمن الذي سجلنا به الدخول
+        if (currentUser && member.id === currentUser.id) {
+            return;
+        }
+
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-            <img src="${member.avatar || 'https://via.placeholder.com/100?text=N/A'}" alt="${member.name}">
-            <h3>${member.name}</h3>
-            <p>${member.role}</p>
-            <p>${member.email}</p>
-        `;
+        
+        // ✅ بناء رابط الصورة الكامل
+        const avatarUrl = member.avatar 
+            ? `${API_BASE_URL}${member.avatar}` 
+            : 'https://via.placeholder.com/100?text=N/A';
 
         card.innerHTML = `
-            <img src="${member.avatar || 'https://via.placeholder.com/100'}" alt="${member.name}">
+            <img src="${avatarUrl}" alt="${member.name}">
             <h3>${member.name}</h3>
             <p>${member.role}</p>
             <p>${member.email}</p>

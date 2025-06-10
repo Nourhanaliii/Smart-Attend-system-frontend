@@ -73,7 +73,60 @@ function renderStaffCards(staffList) {
 
 }
 
+// --- دوال جديدة للتعديل والحذف ---
+function openEditModal(memberId) {
+    memberIdToEdit = memberId;
+    const member = allStaffData.find(m => m.id === memberId);
+    if (!member) return;
 
+    document.getElementById('editMemberName').value = member.name;
+    document.getElementById('editMemberRole').value = member.role;
+    const preview = document.getElementById('edit-avatar-preview');
+    if (member.avatar) {
+        preview.src = `${API_BASE_URL}${member.avatar}`; // استخدام الرابط الكامل
+        preview.style.display = 'block';
+    } else {
+        preview.src = '#';
+        preview.style.display = 'none';
+    }
+    
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+async function handleUpdateMember() {
+    if (!memberIdToEdit) return;
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editMemberName').value);
+    formData.append('role', document.getElementById('editMemberRole').value);
+    const avatarFile = document.getElementById('editAvatarInput').files[0];
+    if (avatarFile) {
+        formData.append('avatar', avatarFile);
+    }
+    try {
+        await updateStaffMember(memberIdToEdit, formData);
+        alert('Member updated successfully!');
+        closeEditModal();
+        loadAndRenderStaff();
+    } catch (error) {
+        alert(`Failed to update member: ${error.message}`);
+    }
+}
+
+async function handleDeleteMember(memberId) {
+    if (confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
+        try {
+            await deleteStaffMember(memberId);
+            alert('Member deleted successfully.');
+            loadAndRenderStaff();
+        } catch (error) {
+            alert(`Failed to delete member: ${error.message}`);
+        }
+    }
+}
 
 // --- الجزء 3: إدارة النافذة المنبثقة (Modal) والإضافة ---
 

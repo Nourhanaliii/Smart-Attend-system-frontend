@@ -316,6 +316,17 @@ async function addStaffMember(formData) {
 async function updateStaffMember(userId, formData) {
     const url = `${API_BASE_URL}/api/auth/users/${userId}/update/`;
     // PATCH method for partial updates with FormData
+    return apiFormDataRequest(url, 'PATCH', formData);
+}
+
+async function deleteStaffMember(userId) {
+    const url = `${API_BASE_URL}/api/auth/users/${userId}/delete/`;
+    return apiRequest(url, { method: 'DELETE' });
+}
+
+async function updateStaffMember(userId, formData) {
+    const url = `${API_BASE_URL}/api/auth/users/${userId}/update/`;
+    // PATCH method for partial updates with FormData
     try {
         const csrfToken = localStorage.getItem('csrfToken');
         if (!csrfToken) throw new Error('CSRF token not found.');

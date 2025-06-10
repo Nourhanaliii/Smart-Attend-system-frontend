@@ -59,21 +59,17 @@ function renderStaffCards(staffList) {
     const currentUser = JSON.parse(localStorage.getItem('user'))
     
     staffList.forEach(member => {
-        // لا نعرض كارت الأدمن الذي سجلنا به الدخول
-        if (currentUser && member.id === currentUser.id) {
-            return;
-        }
-
         const card = document.createElement('div');
         card.className = 'card';
-        
-        // ✅ بناء رابط الصورة الكامل
-        const avatarUrl = member.avatar 
-            ? `${API_BASE_URL}${member.avatar}` 
-            : 'https://via.placeholder.com/100?text=N/A';
+        card.innerHTML = `
+            <img src="${member.avatar || 'https://via.placeholder.com/100?text=N/A'}" alt="${member.name}">
+            <h3>${member.name}</h3>
+            <p>${member.role}</p>
+            <p>${member.email}</p>
+        `;
 
         card.innerHTML = `
-            <img src="${avatarUrl}" alt="${member.name}">
+            <img src="${member.avatar || 'https://via.placeholder.com/100'}" alt="${member.name}">
             <h3>${member.name}</h3>
             <p>${member.role}</p>
             <p>${member.email}</p>

@@ -91,3 +91,4 @@ async function handleLogout() {
         alert("Logout failed.");
     }
 }
+

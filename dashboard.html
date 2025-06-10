@@ -11,7 +11,19 @@
 <body>
     <div class="hamburger">☰</div>
     <div class="sidebar">
-        <!-- ... Sidebar links ... -->
+        <h1>Attendify</h1>
+        <ul>
+            <li><a href="dashboard.html"><img src="dashboard.png" alt="Dashboard">Dashboard</a></li>
+            <li><a href="request_list.html"><img src="request.png" alt="Requests">Requests List</a></li>
+            <li><a href="calender.html"><img src="calender.png" alt="Calendar">Calendar</a></li>
+            <li><a href="subject.html"><img src="subject.png" alt="Subjects">Subjects</a></li>
+            <li><a href="student.html"><img src="student.png" alt="Students">Students</a></li>
+            <li><a href="stuff.html"><img src="staff.png" alt="Staff">Stuff</a></li>
+        </ul>
+        <div class="sidebar-bottom">
+            <li><a href="settings.html"><img src="setting.png" alt="Settings">Settings</a></li>
+            <li><a href="#" onclick="handleLogout()"><img src="logout.png" alt="Logout">Logout</a></li>
+        </div>
     </div>
 
     <div class="main-content">
@@ -33,13 +45,19 @@
                 </div>
             </div>
         </div>
+
         <div class="dashboard-cards">
-            <!-- ... Stat cards with correct IDs ... -->
+            <div class="dashboard-card"><p>Total Attendance</p><h2 id="total-attendance-value">...</h2><img src="Icon1.png" class="icon"></div>
+            <div class="dashboard-card"><p>Active Students</p><h2 id="active-students-value">...</h2><img src="Icon2.png" class="icon"></div>
+            <div class="dashboard-card"><p>Evaluation</p><h2 id="evaluation-value">85%</h2><img src="Icon3.png" class="icon"></div>
+            <div class="dashboard-card"><p>Pending Requests</p><h2 id="pending-requests-value">...</h2><img src="Icon4.png" class="icon"></div>
         </div>
+
         <div class="Chart">
             <h3>Attendance Scheduling Details</h3>
             <canvas id="attendanceChart"></canvas>
         </div>
+
         <div class="attendance-history">
             <h3>Attendance History</h3>
             <table>
@@ -72,8 +90,8 @@
                 </div>
             </div>
             <div class="modal-buttons camera-controls">
-                <button id="captureAndSendBtn" class="capture-btn">Capture & Send</button>
-                <button id="cancelCameraBtn" class="cancel-btn">Cancel</button>
+                <button id="captureBtn" class="capture-btn">Send</button>
+                <button type="button" class="cancel-btn" id="cancelCameraBtn">Cancel</button>
             </div>
         </div>
     </div>

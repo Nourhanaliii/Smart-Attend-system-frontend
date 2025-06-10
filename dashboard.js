@@ -1,5 +1,6 @@
 // =================== dashboard.js (Final Integrated Version) ===================
 
+// --- 1. Initialization on Page Load ---
 document.addEventListener('DOMContentLoaded', () => {
     checkAuthAndInit();
 });
@@ -11,12 +12,14 @@ function checkAuthAndInit() {
         window.location.href = 'home.html';
         return;
     }
-    setupEventListeners();
+    initSidebar();
+    initNotifications();
+    initCameraModal();
+    initChart();
     loadDashboardData();
-    initializeChart();
 }
 
-// --- 1. DATA FETCHING AND RENDERING ---
+// --- 2. Data Fetching and UI Rendering ---
 async function loadDashboardData() {
     try {
         const stats = await getDashboardStats();
@@ -44,36 +47,40 @@ function renderAttendanceHistory(history) {
         return;
     }
     history.forEach(log => {
-        const row = tableBody.insertRow();
+        const row = tableBody.insertRow(0);
         row.innerHTML = `<td>${log.student_name}</td><td>${log.section_name}</td><td>${log.time}</td><td>${log.instructor_name}</td><td>${log.level}</td>`;
     });
 }
 
-// --- 2. EVENT LISTENERS ---
-function setupEventListeners() {
-    document.querySelector('.hamburger')?.addEventListener('click', () => document.querySelector('.sidebar')?.classList.toggle('active'));
-    document.querySelector('a[onclick="handleLogout()"]')?.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
-    document.getElementById('notification-bell')?.addEventListener('click', toggleNotificationsPanel);
-    document.getElementById('closeNotifications')?.addEventListener('click', toggleNotificationsPanel);
-    
-    // Camera Modal Listeners
-    document.getElementById('openCameraBtn')?.addEventListener('click', openCameraModal);
-    document.getElementById('closeCamera')?.addEventListener('click', closeCameraModal);
-    document.getElementById('cancelCameraBtn')?.addEventListener('click', closeCameraModal);
-    document.getElementById('openLiveCamera')?.addEventListener('click', showLiveCameraView);
-    document.getElementById('openUploadPhoto')?.addEventListener('click', showUploadPhotoView);
-    document.getElementById('captureAndSendBtn')?.addEventListener('click', handleCaptureAndSend);
-    document.getElementById('photoUpload')?.addEventListener('change', handlePhotoUpload);
+// --- 3. Sidebar Logic ---
+function initSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    if (hamburger && sidebar) {
+        hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
+    }
 }
 
-// --- 3. NOTIFICATIONS LOGIC ---
-function toggleNotificationsPanel(event) {
-    event?.stopPropagation();
-    const panel = document.getElementById('notificationPopup');
-    panel.classList.toggle('active');
-    if (panel.classList.contains('active')) {
-        populateNotifications();
-    }
+// --- 4. Notifications Logic ---
+function initNotifications() {
+    const notificationBell = document.getElementById('notification-bell');
+    const notificationPopup = document.getElementById('notificationPopup');
+    const closeNotifications = document.getElementById('closeNotifications');
+    
+    notificationBell?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notificationPopup.classList.toggle('active');
+        if (notificationPopup.classList.contains('active')) {
+            populateNotifications();
+        }
+    });
+    
+    closeNotifications?.addEventListener('click', () => notificationPopup.classList.remove('active'));
+    document.addEventListener('click', (e) => {
+        if (!notificationPopup?.contains(e.target) && !notificationBell?.contains(e.target)) {
+            notificationPopup?.classList.remove('active');
+        }
+    });
 }
 
 async function populateNotifications() {
@@ -88,7 +95,7 @@ async function populateNotifications() {
             requests.forEach(req => {
                 const item = document.createElement('li');
                 item.className = 'notification-item unread';
-                item.innerHTML = `<i class="fas fa-exclamation-circle"></i><p>New request from <strong>${req.student.username}</strong></p>`;
+                item.innerHTML = `<i class="fas fa-exclamation-circle"></i><p>${req.message}</p>`;
                 list.appendChild(item);
             });
         }
@@ -102,14 +109,34 @@ function updateNotificationBell(count) {
     if (!badge) return;
     badge.textContent = count;
     badge.style.display = count > 0 ? 'flex' : 'none';
+    const bell = document.getElementById('notification-bell');
+    if (count > 0) bell?.classList.add('pulse');
+    else bell?.classList.remove('pulse');
 }
 
-// --- 4. CAMERA & FACE RECOGNITION ---
+// --- 5. Camera & Face Recognition Logic ---
 let cameraStream = null;
 let currentImageBlob = null;
 
-function openCameraModal() { document.getElementById('cameraModal').style.display = 'flex'; }
-function closeCameraModal() { document.getElementById('cameraModal').style.display = 'none'; stopCamera(); }
+function initCameraModal() {
+    document.getElementById('openCameraBtn')?.addEventListener('click', openCameraModal);
+    document.getElementById('closeCamera')?.addEventListener('click', closeCameraModal);
+    document.getElementById('cancelCameraBtn')?.addEventListener('click', closeCameraModal);
+    document.getElementById('openLiveCamera')?.addEventListener('click', showLiveCameraView);
+    document.getElementById('openUploadPhoto')?.addEventListener('click', showUploadPhotoView);
+    document.getElementById('captureBtn')?.addEventListener('click', handleCaptureAndSend);
+    document.getElementById('photoUpload')?.addEventListener('change', handlePhotoUpload);
+}
+
+function openCameraModal() {
+    document.getElementById('cameraModal').style.display = 'flex';
+    showLiveCameraView();
+}
+
+function closeCameraModal() {
+    document.getElementById('cameraModal').style.display = 'none';
+    stopCamera();
+}
 
 function showLiveCameraView() {
     document.getElementById('liveCameraView').style.display = 'block';
@@ -132,7 +159,7 @@ async function startCamera() {
         stopCamera();
         cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
         document.getElementById('cameraView').srcObject = cameraStream;
-    } catch (err) { alert('Could not access the camera.'); }
+    } catch (err) { alert('Could not access camera.'); }
 }
 
 function stopCamera() {
@@ -149,7 +176,6 @@ function handlePhotoUpload(event) {
         const reader = new FileReader();
         reader.onload = e => {
             document.getElementById('uploadPreview').src = e.target.result;
-            document.getElementById('uploadPreview').style.display = 'block';
         };
         reader.readAsDataURL(file);
     }
@@ -157,20 +183,18 @@ function handlePhotoUpload(event) {
 
 async function handleCaptureAndSend() {
     const sessionId = document.getElementById('sessionIdInput').value;
-    if (!sessionId) {
-        return alert("Please enter a Session ID.");
-    }
-    // Check if we are in upload mode and have a file, or in live camera mode
-    if (document.getElementById('uploadPhotoView').style.display !== 'none') {
-        if (!currentImageBlob) return alert("Please upload a photo first.");
-        processRecognition(currentImageBlob, sessionId);
-    } else {
+    if (!sessionId) return alert("Please enter a Session ID.");
+
+    if (document.getElementById('liveCameraView').style.display !== 'none') {
         const video = document.getElementById('cameraView');
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
         canvas.toBlob(blob => processRecognition(blob, sessionId), 'image/jpeg');
+    } else {
+        if (!currentImageBlob) return alert("Please upload a photo first.");
+        processRecognition(currentImageBlob, sessionId);
     }
 }
 
@@ -179,16 +203,15 @@ async function processRecognition(imageBlob, sessionId) {
     formData.append('image', imageBlob);
     formData.append('session_id', sessionId);
 
-    const btn = document.getElementById('captureAndSendBtn');
-    btn.disabled = true;
-    btn.innerText = 'Processing...';
+    const btn = document.getElementById('captureBtn');
+    btn.disabled = true; btn.innerText = 'Processing...';
 
     try {
         const result = await recognizeFaces(formData);
         const notificationList = document.getElementById('notificationList');
         const item = document.createElement('li');
         item.className = 'notification-item';
-        item.innerHTML = `<i class="fas fa-users"></i><p>${result.message}</p>`;
+        item.innerHTML = `<i class="fas fa-robot"></i><p>${result.message}</p>`;
         notificationList.prepend(item);
         
         alert(`Success: ${result.message}`);
@@ -197,12 +220,11 @@ async function processRecognition(imageBlob, sessionId) {
     } catch (error) {
         alert(`Recognition Failed: ${error.message}`);
     } finally {
-        btn.disabled = false;
-        btn.innerText = 'Capture & Send';
+        btn.disabled = false; btn.innerText = 'Send';
         currentImageBlob = null;
     }
 }
 
-// --- 5. CHART & LOGOUT ---
+// --- 6. Chart and Logout ---
 function initializeChart() { /* ... same as before ... */ }
-async function handleLogout() { /* ... same as before ... */ }
+function handleLogout() { /* ... same as before ... */ }
